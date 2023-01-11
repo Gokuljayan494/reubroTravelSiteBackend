@@ -47,6 +47,7 @@ let adminSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 adminSchema.methods.createOtp = function (next) {
   console.log(`hello`);
   var minm = 100000;

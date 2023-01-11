@@ -8,9 +8,16 @@ const AWS = require("aws-sdk");
 const adminRouter = require("./routes/adminRouter");
 const agentRouter = require("./routes/agentRouter");
 const userRouter = require("./routes/userRouter");
-// const uuid = require("uuid/dist/commonjs-browser/v4 ");
+const path = require("path");
+
 //////////////////////
+// app.use("/uploads/users", express.static("/uploads/users"));
+// express.static(path.join(__dirname, "public"));
+console.log(path.join(__dirname + "/images"));
+app.use(express.static(path.join(__dirname + "/images")));
+
 app.use(express.json());
+app.use(cors());
 dotenv.config({ path: "./config.env" });
 
 mongoose
@@ -24,8 +31,8 @@ mongoose
     console.log(`Error:${err.message}`);
   });
 app.use("/api/v1/user", userRouter);
-// app.use("/api/v1/agents", agentRouter);
 app.use("/api/v1/admin", adminRouter);
+
 app.listen("3000", () => {
   console.log(`server started at port 3000`);
 });

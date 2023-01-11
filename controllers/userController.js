@@ -3,6 +3,8 @@ const userModel = require("../model/userModel");
 const multer = require("multer");
 const boookingFlightModel = require("../model/bookingsFlights");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 exports.protect = async (req, res, next) => {
   try {
@@ -26,8 +28,7 @@ exports.protect = async (req, res, next) => {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
 };
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
 // cloudinary.config({
 //   cloud_name: 'YOUR_CLOUD_NAME',
 //   api_key: 'YOUR_API_KEY',

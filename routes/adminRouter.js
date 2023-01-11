@@ -6,11 +6,17 @@ const protect = require("../controllers/authenication");
 const router = express.Router();
 router.post("/register", adminController.addAdmin);
 router.post("/login", adminController.login);
-router.get("/allUsers", authController.protect, adminController.getAllUsers);
+router.get("/allUsers", adminController.getAllUsers);
+
 router.patch("/forgotPassword", adminController.forgotPassword);
 router.patch("/resetPassword", adminController.resetPassword);
 router
   .route("/flightBookingDetails")
   .get(authController.protect, adminController.getALLFlightBookings);
-// .patch(authController.protect, userController.editUser);
+router.post(
+  "/uploadVideo",
+  adminController.uploadVideos,
+  adminController.videos
+);
+router.route("/getVideo").get(adminController.viewVideos);
 module.exports = router;

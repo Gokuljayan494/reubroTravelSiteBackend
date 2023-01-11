@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const Booking = require("./bookingsFlights");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 let userSchema = new mongoose.Schema(
   {
@@ -73,6 +74,7 @@ userSchema.methods.checkPassword = async function (
 userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
 });
+userSchema.plugin(mongoosePaginate);
 
 UserModel = mongoose.model("User", userSchema);
 module.exports = UserModel;

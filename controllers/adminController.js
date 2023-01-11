@@ -1,8 +1,16 @@
 const AdminModel = require("../model/adminModel");
 const userModel = require("../model/userModel");
 const sendEmail = require("../controllers/email");
+const path = require("path");
+const multer = require("multer");
+const VideoModel = require("../model/videoUploadModel");
+const formidable = require("formidable");
+const fs = require("fs");
 const FlightBookingModel = require("../model/bookingsFlights");
 const jwt = require("jsonwebtoken");
+const { getVideoDuration } = require("get-video-duration");
+//////////////////////////////////////////
+
 let jwtToken = async (id) => {
   token = jwt.sign({ id }, process.env.jwtSecretKeyAdmin, {
     expiresIn: `1d`,
@@ -45,9 +53,18 @@ exports.login = async (req, res) => {
 };
 exports.getAllUsers = async (req, res) => {
   try {
-    // if (req.headers.authorization&&req.)
-    data = await userModel.find();
-    res.status(200).json({ status: "sucess", data });
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 5;
+    const skip = (page - 1) * limit;
+
+    users = await userModel.find().skip(skip).limit(limit);
+
+    // console.log(page, limit, offset);
+    // data = await userModel.find();
+    // data = await userModel.paginate({ page, limit, offset });
+    res
+      .status(200)
+      .json({ status: "sucess", results: users.length, data: { users } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
@@ -105,8 +122,65 @@ exports.deleteUser = async (req, res) => {
 
 exports.getALLFlightBookings = async (req, res) => {
   try {
-    flightBookings = await FlightBookingModel.find();
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 5;
+    const skip = (page - 1) * limit;
+
+    flightBookings = await FlightBookingModel.find().skip(skip).limit(limit);
+
     res.status(200).json({ status: "sucess", flightBookings });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+const multerFilter = (req, file, cb) => {
+  console.log(file.mimetype.split("/")[1]);
+  if (file.mimetype.split("/")[1] === "mp4") {
+    cb(null, true);
+  } else {
+    cb(new Error("Not a video file"), false);
+  }
+};
+// exports.videoUploads = videoUpload.single("video");
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    const ext = file.mimetype.split("/")[1];
+    cb(null, (req.video = `/${file.fieldname}${Date.now()}.${ext}`));
+    // console.log(req.video);
+  },
+});
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadVideos = upload.any("video");
+
+exports.videos = async (req, res) => {
+  try {
+    videos = await VideoModel.create({ name: req.body.name, video: req.video });
+
+    res.status(200).json({ status: "sucess", videos });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.viewVideos = async (req, res) => {
+  try {
+    videos = await VideoModel.find();
+    console.log(videos);
+
+    // let data = fs.readFileSync(path.resolve(`${videos.video}`));
+    // video = await fs.open(videos.video);
+    // console.log(video);
+    res.status(200).json({ status: "sucess", videos });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
