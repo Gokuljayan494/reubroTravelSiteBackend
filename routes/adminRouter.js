@@ -18,5 +18,9 @@ router.post(
   adminController.uploadVideos,
   adminController.videos
 );
+
 router.route("/getVideo").get(adminController.viewVideos);
+router
+  .route("/dashboard")
+  .get(authController.protect, adminController.dashboard);
 module.exports = router;

@@ -9,6 +9,7 @@ const fs = require("fs");
 const FlightBookingModel = require("../model/bookingsFlights");
 const jwt = require("jsonwebtoken");
 const { getVideoDuration } = require("get-video-duration");
+const BookingFlightModel = require("../model/bookingsFlights");
 //////////////////////////////////////////
 
 let jwtToken = async (id) => {
@@ -181,6 +182,23 @@ exports.viewVideos = async (req, res) => {
     // video = await fs.open(videos.video);
     // console.log(video);
     res.status(200).json({ status: "sucess", videos });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.dashboard = async (req, res) => {
+  try {
+    user = await userModel.find();
+    bookings = await BookingFlightModel.find();
+
+    res
+      .status(200)
+      .json({
+        status: "sucess",
+        user: user.length - 1,
+        bookings: bookings.length - 1,
+      });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
