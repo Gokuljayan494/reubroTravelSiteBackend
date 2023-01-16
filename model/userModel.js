@@ -56,6 +56,10 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    state: {
+      type: String,
+      required: true,
+    },
   },
   {
     toJSON: { virtuals: true },

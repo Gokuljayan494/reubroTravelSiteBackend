@@ -191,14 +191,14 @@ exports.dashboard = async (req, res) => {
   try {
     user = await userModel.find();
     bookings = await BookingFlightModel.find();
-
-    res
-      .status(200)
-      .json({
-        status: "sucess",
-        user: user.length - 1,
-        bookings: bookings.length - 1,
-      });
+    if (!bookings) {
+      throw new Error("no bookings found");
+    }
+    res.status(200).json({
+      status: "sucess",
+      user: user.length,
+      bookings: bookings.length,
+    });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }

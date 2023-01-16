@@ -71,7 +71,17 @@ exports.uploadAds = async (req, res) => {
     if (mime === "jpeg" || mime === "png") {
     }
     console.log(mime);
-    const { name, email, password, place } = req.body;
+    const {
+      name,
+      email,
+      password,
+      place,
+      pincode,
+      state,
+      city,
+      country,
+      mobile,
+    } = req.body;
 
     let images = req.file.path;
     console.log(req.body.image);
@@ -81,6 +91,11 @@ exports.uploadAds = async (req, res) => {
       email,
       password,
       place,
+      pincode,
+      state,
+      city,
+      country,
+      mobile,
       image: images,
     });
     // console.log(ads);
