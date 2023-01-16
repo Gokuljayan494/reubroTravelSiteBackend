@@ -114,7 +114,8 @@ exports.resetPassword = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    await userModel.deleteOne({ _id: id });
+    id = req.params.userId;
+    await userModel.deleteOne({ id });
     res.status(200).json({ status: "sucess", message: "user deleted" });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
@@ -123,11 +124,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.getALLFlightBookings = async (req, res) => {
   try {
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 5;
-    const skip = (page - 1) * limit;
-
-    flightBookings = await FlightBookingModel.find().skip(skip).limit(limit);
+    flightBookings = await FlightBookingModel.find();
 
     res.status(200).json({ status: "sucess", flightBookings });
   } catch (err) {
