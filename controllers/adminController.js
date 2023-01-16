@@ -115,7 +115,7 @@ exports.resetPassword = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     id = req.params.userId;
-    await userModel.deleteOne({ id });
+    await userModel.findByIdAndUpdate({ id }, { active: false });
     res.status(200).json({ status: "sucess", message: "user deleted" });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
