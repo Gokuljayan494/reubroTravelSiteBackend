@@ -38,7 +38,7 @@ let userSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: true,
+      // required: true,
     },
     mobile: {
       type: Number,
