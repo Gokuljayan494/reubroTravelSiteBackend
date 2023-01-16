@@ -54,11 +54,11 @@ exports.login = async (req, res) => {
 };
 exports.getAllUsers = async (req, res) => {
   try {
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 5;
-    const skip = (page - 1) * limit;
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 5;
+    // const skip = (page - 1) * limit;
 
-    users = await userModel.find().skip(skip).limit(limit);
+    users = await userModel.find();
 
     // console.log(page, limit, offset);
     // data = await userModel.find();
