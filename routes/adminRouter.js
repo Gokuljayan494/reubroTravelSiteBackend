@@ -6,7 +6,7 @@ const protect = require("../controllers/authenication");
 const router = express.Router();
 router.post("/register", adminController.addAdmin);
 router.post("/login", adminController.login);
-router.get("/allUsers", adminController.getAllUsers);
+router.get("/allUsers", authController.protect, adminController.getAllUsers);
 
 router.patch("/forgotPassword", adminController.forgotPassword);
 router.patch("/resetPassword", adminController.resetPassword);
