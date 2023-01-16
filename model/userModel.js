@@ -81,9 +81,10 @@ userSchema.methods.checkPassword = async function (
   return await bcrypt.compare(currentPassword, inputtedPassword);
 };
 userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
   this.password = await bcrypt.hash(this.password, 12);
 });
-userSchema.plugin(mongoosePaginate);
 
 UserModel = mongoose.model("User", userSchema);
 module.exports = UserModel;
