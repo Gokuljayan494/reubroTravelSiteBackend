@@ -182,7 +182,7 @@ exports.viewVideos = async (req, res) => {
 
 exports.dashboard = async (req, res) => {
   try {
-    user = await userModel.find({ $match: { active: true } });
+    user = await userModel.find({ active: true });
     bookings = await BookingFlightModel.find();
     if (!bookings) {
       throw new Error("no bookings found");
