@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const { getVideoDuration } = require("get-video-duration");
 const BookingFlightModel = require("../model/bookingsFlights");
 //////////////////////////////////////////
+user1 = [];
 
 let jwtToken = async (id) => {
   token = jwt.sign({ id }, process.env.jwtSecretKeyAdmin, {
@@ -54,18 +55,11 @@ exports.login = async (req, res) => {
 };
 exports.getAllUsers = async (req, res) => {
   try {
-    // const page = req.query.page * 1 || 1;
-    // const limit = req.query.limit * 1 || 5;
-    // const skip = (page - 1) * limit;
-
-    users = await userModel.find();
-
-    // console.log(page, limit, offset);
-    // data = await userModel.find();
-    // data = await userModel.paginate({ page, limit, offset });
+    user = await userModel.find({ active: true });
+    console.log(user);
     res
       .status(200)
-      .json({ status: "sucess", results: users.length, data: { users } });
+      .json({ status: "sucess", results: user.length, data: { user } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
@@ -116,11 +110,7 @@ exports.deleteUser = async (req, res) => {
   try {
     id = req.params.userId;
     console.log(id);
-    user = await userModel.findById(id);
-    console.log(user);
-    user.active = false;
-    console.log(user.active);
-    await user.save({ validateBeforeSave: false });
+    user = await userModel.findByIdAndUpdate(id, { active: false });
 
     res.status(200).json({ status: "sucess", message: "user deleted" });
   } catch (err) {
@@ -192,7 +182,7 @@ exports.viewVideos = async (req, res) => {
 
 exports.dashboard = async (req, res) => {
   try {
-    user = await userModel.find();
+    user = await userModel.find({ $match: { active: true } });
     bookings = await BookingFlightModel.find();
     if (!bookings) {
       throw new Error("no bookings found");

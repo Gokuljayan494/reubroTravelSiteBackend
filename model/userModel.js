@@ -4,6 +4,8 @@ const validator = require("validator");
 const Booking = require("./bookingsFlights");
 const mongoosePaginate = require("mongoose-paginate-v2");
 
+// const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
+
 let userSchema = new mongoose.Schema(
   {
     booking: {
@@ -72,7 +74,6 @@ let userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 userSchema.methods.checkPassword = async function (
   inputtedPassword,
   currentPassword
