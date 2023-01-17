@@ -23,9 +23,10 @@ let userSchema = new mongoose.Schema(
         ,
         "please enter a  valid email id",
       ],
-
       validate: [validator.isEmail, "please provide a email"],
-      unique: true,
+      validate: [validator.isEmail, "please provide a email"],
+      unique: [true, "email used before"],
+      unique: [true, "email used before"],
       required: true,
     },
     password: {
