@@ -31,6 +31,11 @@ const bookingFlightSchema = new mongooose.Schema(
       type: Array,
       // required,
     },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
   },
   {
     toJSON: { virtuals: true },

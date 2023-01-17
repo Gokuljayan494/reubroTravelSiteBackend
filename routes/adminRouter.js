@@ -13,6 +13,13 @@ router.delete(
   authController.protect,
   adminController.deleteUser
 );
+
+router
+  .route("/userFlightBookingDetails/:userId")
+  .get(authController.protect, adminController.getBookingDetail);
+router
+  .route("/deleteBookings/:id")
+  .delete(authController.protect, adminController.deleteBookings);
 router.patch("/forgotPassword", adminController.forgotPassword);
 router.patch("/resetPassword", adminController.resetPassword);
 router

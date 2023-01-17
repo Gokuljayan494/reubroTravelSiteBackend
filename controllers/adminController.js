@@ -10,6 +10,7 @@ const FlightBookingModel = require("../model/bookingsFlights");
 const jwt = require("jsonwebtoken");
 const { getVideoDuration } = require("get-video-duration");
 const BookingFlightModel = require("../model/bookingsFlights");
+const { bookingsFlight } = require("./userController");
 //////////////////////////////////////////
 user1 = [];
 
@@ -120,7 +121,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.getALLFlightBookings = async (req, res) => {
   try {
-    flightBookings = await FlightBookingModel.find();
+    flightBookings = await FlightBookingModel.find({ active: true });
 
     res.status(200).json({ status: "sucess", flightBookings });
   } catch (err) {
@@ -183,7 +184,7 @@ exports.viewVideos = async (req, res) => {
 exports.dashboard = async (req, res) => {
   try {
     user = await userModel.find({ active: true });
-    bookings = await BookingFlightModel.find();
+    bookings = await BookingFlightModel.find({ active: true });
     if (!bookings) {
       throw new Error("no bookings found");
     }
@@ -204,6 +205,30 @@ exports.getUser = async (req, res) => {
     user = await userModel.findById(id);
 
     res.status(200).json({ status: "sucess", user });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.deleteBookings = async (req, res) => {
+  try {
+    id = req.params.id;
+
+    await BookingFlightModel.findByIdAndUpdate({ _id: id }, { active: false });
+
+    res.status(200).json({ status: "sucess", message: `Bookings Deleted` });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.getBookingDetail = async (req, res) => {
+  try {
+    id = req.params.userId;
+
+    booking = await BookingFlightModel.findById(id);
+
+    res.status(200).json({ status: "sucess", booking });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
