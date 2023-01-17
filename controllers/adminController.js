@@ -196,3 +196,15 @@ exports.dashboard = async (req, res) => {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
 };
+
+exports.getUser = async (req, res) => {
+  try {
+    id = req.params.id;
+
+    user = await userModel.findById(id);
+
+    res.status(200).json({ status: "sucess", user });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
