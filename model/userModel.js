@@ -18,7 +18,6 @@ let userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      // required: [true, "Email required"],
       Math: [
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         ,
@@ -27,7 +26,7 @@ let userSchema = new mongoose.Schema(
 
       validate: [validator.isEmail, "please provide a email"],
       unique: true,
-      // required: true,
+      required: true,
     },
     password: {
       type: String,

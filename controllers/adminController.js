@@ -172,9 +172,6 @@ exports.viewVideos = async (req, res) => {
     videos = await VideoModel.find();
     console.log(videos);
 
-    // let data = fs.readFileSync(path.resolve(`${videos.video}`));
-    // video = await fs.open(videos.video);
-    // console.log(video);
     res.status(200).json({ status: "sucess", videos });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
