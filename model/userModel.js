@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const Booking = require("./bookingsFlights");
 const mongoosePaginate = require("mongoose-paginate-v2");
+const { default: isEmail } = require("validator/lib/isEmail");
 
 // const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 
@@ -16,6 +17,19 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // email: {
+    //   type: String,
+    // Math: [
+    //   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    //   ,
+    //   "please enter a  valid email id",
+    // ],
+    // validate: [validator.isEmail, "please provide a email"],
+    //   validate: [validator.isEmail, "please provide a email"],
+    //   unique: [true, "email used before"],
+    //   unique: [true, "email used before"],
+    //   required: true,
+    // },
     email: {
       type: String,
       Math: [
@@ -24,8 +38,6 @@ let userSchema = new mongoose.Schema(
         "please enter a  valid email id",
       ],
       validate: [validator.isEmail, "please provide a email"],
-      validate: [validator.isEmail, "please provide a email"],
-      unique: [true, "email used before"],
       unique: [true, "email used before"],
       required: true,
     },
