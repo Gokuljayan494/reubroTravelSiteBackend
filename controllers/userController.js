@@ -5,6 +5,11 @@ const boookingFlightModel = require("../model/bookingsFlights");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const sgMail = require("@sendgrid/mail");
+const sendRegisterEmail = require("../utils/emailSendGrid");
+
+////////////////////////////////////////////
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.protect = async (req, res, next) => {
   try {
@@ -29,11 +34,6 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-// cloudinary.config({
-//   cloud_name: 'YOUR_CLOUD_NAME',
-//   api_key: 'YOUR_API_KEY',
-//   api_secret: 'YOUR_API_SECRET',
-// });
 let jwtToken = async (id) => {
   token = jwt.sign({ id }, process.env.jwtSecretKeyUser, {
     expiresIn: `1d`,
@@ -84,8 +84,7 @@ exports.uploadAds = async (req, res) => {
     } = req.body;
 
     let images = req.file.path;
-    console.log(req.body.image);
-    console.log(req.file);
+
     let user = await userModel.create({
       name,
       email,
@@ -98,6 +97,13 @@ exports.uploadAds = async (req, res) => {
       mobile,
       image: images,
     });
+    console.log(process.env.SENDGRID_API_KEY);
+    if (!user) {
+      throw new Error("please enter the required fields");
+    }
+
+    await sendRegisterEmail(user.email);
+
     // console.log(ads);
     res.status(200).json({ status: "sucess", user });
   } catch (err) {

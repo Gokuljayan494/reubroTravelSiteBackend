@@ -169,7 +169,7 @@ exports.videos = async (req, res) => {
 
 exports.viewVideos = async (req, res) => {
   try {
-    videos = await VideoModel.find();
+    videos = await VideoModel.find({ active: true });
     console.log(videos);
 
     res.status(200).json({ status: "sucess", videos });
@@ -229,4 +229,19 @@ exports.getBookingDetail = async (req, res) => {
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
+
+  exports.deleteVideos = async (req, res) => {
+    try {
+      id = req.params.id;
+
+      bookings = await BookingFlightModel.findByIdAndUpdate(
+        { id },
+        { active: false }
+      );
+
+      res.status(200).json({ status: "sucess", message: "video deleted" });
+    } catch (err) {
+      res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+    }
+  };
 };

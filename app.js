@@ -9,7 +9,9 @@ const adminRouter = require("./routes/adminRouter");
 const agentRouter = require("./routes/agentRouter");
 const userRouter = require("./routes/userRouter");
 const path = require("path");
+const sgMail = require("@sendgrid/mail");
 const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
+
 //////////////////////
 // app.use("/uploads/users", express.static("/uploads/users"));
 // express.static(path.join(__dirname, "public"));
