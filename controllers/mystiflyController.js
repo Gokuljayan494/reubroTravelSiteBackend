@@ -5,7 +5,9 @@ exports.mystiflyApiSearch = async (req, res) => {
     const { DepartureDateTime, OriginLocationCode, DestinationLocationCode } =
       req.body;
     console.log(req.body);
-
+    if (!req.body) {
+      throw new Error("Enter fields properly");
+    }
     const response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v1/Search/Flight",
@@ -17,8 +19,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         OriginDestinationInformations: [
           {
             DepartureDateTime: `${DepartureDateTime}T00:00:00`,
-            OriginLocationCode,
-            DestinationLocationCode,
+            OriginLocationCode: OriginLocationCode,
+            DestinationLocationCode: DestinationLocationCode,
           },
           //   {
           //     DepartureDateTime: "2023-02-25T00:00:00",
@@ -52,6 +54,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         ConversationId: "string",
       },
     });
+
+    if (!response) {
+      throw new error("no flights");
+    }
     data = response.data.Data.PricedItineraries;
     console.log(response.data.Data.PricedItineraries);
     res.status(200).json({ status: "sucess", data });
