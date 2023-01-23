@@ -4,7 +4,9 @@ const AdminModel = require("../model/adminModel");
 exports.protect = async (req, res, next) => {
   try {
     // check if the token is in headers
-    console.log(req.headers.authorization.startsWith("Bearer"));
+    if (req.headers.authorization === undefined) {
+      throw new Error("no token");
+    }
     if (!req.headers.authorization.startsWith("Bearer")) {
       throw new Error("sign in first");
     }

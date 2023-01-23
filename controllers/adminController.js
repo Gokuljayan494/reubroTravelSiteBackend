@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const { getVideoDuration } = require("get-video-duration");
 const BookingFlightModel = require("../model/bookingsFlights");
 const { bookingsFlight } = require("./userController");
+const agentModel = require("../model/agentModel");
 //////////////////////////////////////////
 user1 = [];
 
@@ -229,19 +230,38 @@ exports.getBookingDetail = async (req, res) => {
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
+};
 
-  exports.deleteVideos = async (req, res) => {
-    try {
-      id = req.params.id;
+exports.deleteVideos = async (req, res) => {
+  try {
+    id = req.params.id;
 
-      bookings = await BookingFlightModel.findByIdAndUpdate(
-        { id },
-        { active: false }
-      );
+    bookings = await BookingFlightModel.findByIdAndUpdate(
+      { id },
+      { active: false }
+    );
 
-      res.status(200).json({ status: "sucess", message: "video deleted" });
-    } catch (err) {
-      res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+    res.status(200).json({ status: "sucess", message: "video deleted" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.activateAgents = async (req, res) => {
+  try {
+    id = req.params.id;
+    console.log(id);
+    admin = await agentModel.findById(id);
+    console.log(admin);
+    if (admin.subscribe === false) {
+      admin.subscribe = true;
+    } else {
+      admin.subscribe = false;
     }
-  };
+
+    await admin.save({ validateBeforeSave: false });
+    res.status(200).json({ status: "sucess", message: "Activated", admin });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
 };

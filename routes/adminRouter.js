@@ -35,4 +35,8 @@ router.route("/getVideo").get(adminController.viewVideos);
 router
   .route("/dashboard")
   .get(authController.protect, adminController.dashboard);
+
+router
+  .route("/activateAgency/:id")
+  .patch(authController.protect, adminController.activateAgents);
 module.exports = router;

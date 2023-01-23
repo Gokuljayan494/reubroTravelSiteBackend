@@ -8,9 +8,12 @@ const AWS = require("aws-sdk");
 const adminRouter = require("./routes/adminRouter");
 const agentRouter = require("./routes/agentRouter");
 const userRouter = require("./routes/userRouter");
+const mystiflyRouter = require("./routes/mystiflyRouter");
 const path = require("path");
 const sgMail = require("@sendgrid/mail");
 const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
+const ffprobe = require("@ffprobe-installer/ffprobe");
+const axios = require("axios");
 
 //////////////////////
 // app.use("/uploads/users", express.static("/uploads/users"));
@@ -34,6 +37,10 @@ mongoose
   });
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/agent", agentRouter);
+app.use("/api/v1/mystifly", mystiflyRouter);
+
+/////////////////////////
 
 app.listen("3000", () => {
   console.log(`server started at port 3000`);
