@@ -210,11 +210,11 @@ exports.mystiflyApiSearch = async (req, res) => {
     } = req.body;
     console.log(req.body.ADT);
     console.log(req.body.ADT == undefined);
-    if (req.body.ADT === undefined || 0) {
+    if (req.body.ADT === undefined || "0") {
       console.log(`hello`);
       ADT = 1;
     }
-    if (req.body.CHD === undefined || 0) {
+    if (req.body.CHD === undefined || "0") {
       CHD = 1;
     }
     // if (req.body.INF === undefined || 0) {
