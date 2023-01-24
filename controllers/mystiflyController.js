@@ -217,9 +217,9 @@ exports.mystiflyApiSearch = async (req, res) => {
     if (req.body.CHD === undefined || 0) {
       CHD = 1;
     }
-    if (req.body.INF === undefined || 0) {
-      INF = 1;
-    }
+    // if (req.body.INF === undefined || 0) {
+    //   INF = 1;
+    // }
     console.log(`------------------------`);
     console.log(ADT, CHD, INF);
     console.log(`CHD:${CHD}`);
