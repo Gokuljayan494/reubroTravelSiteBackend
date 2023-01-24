@@ -1,7 +1,6 @@
 const axios = require("axios");
 let response;
-let ADT;
-let CHD;
+
 let fareList = [];
 let baggageList = [];
 const oneWay = async function (
@@ -209,21 +208,23 @@ exports.mystiflyApiSearch = async (req, res) => {
       CHD,
       INF,
     } = req.body;
-    console.log(
-      DepartureDateTime1,
-      OriginLocationCode1,
-      DestinationLocationCode1
-    );
-    if (ADT === undefined) {
+    console.log(req.body.ADT);
+    console.log(req.body.ADT == undefined);
+    if (req.body.ADT === undefined || 0) {
+      console.log(`hello`);
       ADT = 1;
     }
-    if (CHD === undefined) {
-      CHD = 0;
+    if (req.body.CHD === undefined || 0) {
+      CHD = 1;
     }
-    if (INF === undefined) {
-      INF = 0;
+    if (req.body.INF === undefined || 0) {
+      INF = 1;
     }
+    console.log(`------------------------`);
+    console.log(ADT, CHD, INF);
+    console.log(`CHD:${CHD}`);
     if (AirType === "OneWay") {
+      console.log(AirType);
       response = oneWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -262,6 +263,7 @@ exports.mystiflyApiSearch = async (req, res) => {
 
     data = await response;
 
+    console.log(data);
     flights = data.data.Data.FlightSegmentList;
 
     data.data.Data.FlightFaresList.forEach((el) => {

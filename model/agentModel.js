@@ -53,11 +53,11 @@ let agentSchema = new mongoose.Schema(
       ownerName: { type: String, required: true },
       dob: { type: String, required: true },
 
-      iDProof: {
+      idProof: {
         type: String,
         required: true,
       },
-      TAN: {
+      tan: {
         type: String,
         required: true,
       },

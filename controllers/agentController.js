@@ -96,13 +96,13 @@ const multerFilter = (req, file, cb) => {
 // exports.videoUploads = videoUpload.single("video");
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "agentImages");
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
     console.log(file);
     const ext = file.mimetype.split("/")[1];
     cb(null, (req.video = `/${file.fieldname}${Date.now()}.${ext}`));
-    // console.log(req.video);
+    console.log(req.video);
   },
 });
 
@@ -115,7 +115,28 @@ exports.uploadVideos = upload.any("image");
 
 exports.CompleteRegistration = async (req, res) => {
   try {
-    res.status(200).json({ status: "sucess" });
+    const { ownerName, dob, idProof, tan, licenceNumber } = req.body;
+    const image = req.video;
+    console.log(ownerName, dob, idProof, tan, licenceNumber);
+
+    agent = await AgentModel.findByIdAndUpdate(
+      { _id: req.user },
+      {
+        $set: {
+          "kyc.ownerName": ownerName,
+          "kyc.dob": dob,
+          "kyc.idProof": idProof,
+          "kyc.tan": tan,
+          "kyc.licenceNumber": licenceNumber,
+          "kyc.ownerName": ownerName,
+          image,
+        },
+      }
+    );
+    console.log(agent);
+    // agent = await agent.save({ validateBeforeSave: false });
+    // console.log(agent);
+    res.status(200).json({ status: "sucess", agent });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
