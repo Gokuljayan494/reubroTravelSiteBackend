@@ -2,6 +2,8 @@ const axios = require("axios");
 let response;
 let ADT;
 let CHD;
+let fareList = [];
+let baggageList = [];
 const oneWay = async function (
   DepartureDateTime,
   OriginLocationCode,
@@ -66,6 +68,9 @@ const returnTwoWay = async function (
   DepartureDateTime,
   OriginLocationCode,
   DestinationLocationCode,
+  DepartureDateTime1,
+  OriginLocationCode1,
+  DestinationLocationCode1,
   AirType,
   ADT,
   CHD,
@@ -87,9 +92,9 @@ const returnTwoWay = async function (
           DestinationLocationCode: DestinationLocationCode,
         },
         {
-          DepartureDateTime: "2023-02-27T00:00:00",
-          OriginLocationCode: "BLR",
-          DestinationLocationCode: "DXB",
+          DepartureDateTime: `${DepartureDateTime1}T00:00:00`,
+          OriginLocationCode: OriginLocationCode1,
+          DestinationLocationCode: DestinationLocationCode1,
         },
       ],
       TravelPreferences: {
@@ -196,11 +201,19 @@ exports.mystiflyApiSearch = async (req, res) => {
       DepartureDateTime,
       OriginLocationCode,
       DestinationLocationCode,
+      DepartureDateTime1,
+      OriginLocationCode1,
+      DestinationLocationCode1,
       AirType,
       ADT,
       CHD,
       INF,
     } = req.body;
+    console.log(
+      DepartureDateTime1,
+      OriginLocationCode1,
+      DestinationLocationCode1
+    );
     if (ADT === undefined) {
       ADT = 1;
     }
@@ -226,6 +239,9 @@ exports.mystiflyApiSearch = async (req, res) => {
         DepartureDateTime,
         OriginLocationCode,
         DestinationLocationCode,
+        DepartureDateTime1,
+        OriginLocationCode1,
+        DestinationLocationCode1,
         AirType,
         ADT,
         CHD,
@@ -244,13 +260,19 @@ exports.mystiflyApiSearch = async (req, res) => {
       );
     }
 
-    console.log(req.body);
-
     data = await response;
-    console.log(data);
-    data = data.data.Data.PricedItineraries;
-    // console.log(response.data.Data.PricedItineraries);
-    res.status(200).json({ status: "sucess", data });
+
+    flights = data.data.Data.FlightSegmentList;
+
+    data.data.Data.FlightFaresList.forEach((el) => {
+      fareList.push(el);
+    });
+
+    data.data.Data.ItineraryReferenceList.forEach((el) => {
+      baggageList.push(el);
+    });
+
+    res.status(200).json({ status: "sucess", flights, fareList, baggageList });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }

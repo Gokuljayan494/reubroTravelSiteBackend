@@ -27,11 +27,14 @@ router
   .get(authController.protect, adminController.getALLFlightBookings);
 router.post(
   "/uploadVideo",
+  authController.protect,
   adminController.uploadVideos,
   adminController.videos
 );
 
-router.route("/getVideo").get(adminController.viewVideos);
+router
+  .route("/getVideo")
+  .get(authController.protect, adminController.viewVideos);
 router
   .route("/dashboard")
   .get(authController.protect, adminController.dashboard);

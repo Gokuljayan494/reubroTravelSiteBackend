@@ -25,10 +25,7 @@ let agentSchema = new mongoose.Schema(
       default: false,
       select: true,
     },
-    // agentBookings: {
-    //   type: mongoose.Types.ObjectId,
-    //   ref: "AgentBooking",
-    // },
+
     companyName: {
       type: String,
       require: true,
