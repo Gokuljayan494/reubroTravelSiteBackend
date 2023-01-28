@@ -1,6 +1,9 @@
 const axios = require("axios");
-let response;
+const _ = require("lodash");
+////////////////////
 
+let response;
+flightvalue = [];
 let fareList = [];
 let baggageList = [];
 const oneWay = async function (
@@ -262,19 +265,50 @@ exports.mystiflyApiSearch = async (req, res) => {
     }
 
     data = await response;
+    newone = [];
+    let flightSegments;
 
-    console.log(data);
-    flights = data.data.Data.FlightSegmentList;
+    // data = data.data;
 
-    data.data.Data.FlightFaresList.forEach((el) => {
-      fareList.push(el);
+    pricedItineraries = data.data.Data.PricedItineraries;
+    flightSegmentList = data.data.Data.FlightSegmentList;
+    FlightFaresList = data.data.Data.FlightFaresList;
+    ItineraryReferenceList = data.data.Data.ItineraryReferenceList;
+
+    const flights = pricedItineraries.map((itinerary) => {
+      // Get the segment details for each flight
+      const segmentRef = itinerary.OriginDestinations[0].SegmentRef;
+      console.log(segmentRef);
+      const flightSegment = flightSegmentList.find(
+        (segment) => segment.SegmentRef === segmentRef
+      );
+      console.log(flightSegment);
+
+      // save this flight segment
+
+      // Get the fare details for each flight
+      const fareRef = itinerary.FareRef;
+      console.log(`----------`);
+      console.log(`----------`);
+      console.log(`----------`);
+      console.log(fareRef);
+      const flightFare = FlightFaresList.find(
+        (fare) => fare.FareRef === fareRef
+      );
+      console.log(flightFare);
+      flight = {
+        flightDetails: flightSegment,
+        flightFare: flightFare,
+      };
+      return flight;
     });
 
-    data.data.Data.ItineraryReferenceList.forEach((el) => {
-      baggageList.push(el);
-    });
+    data = data.data;
+    // console.log(newone);
 
-    res.status(200).json({ status: "sucess", flights, fareList, baggageList });
+    res.status(200).json({
+      flights,
+    });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }

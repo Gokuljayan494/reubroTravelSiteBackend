@@ -42,4 +42,8 @@ router
 router
   .route("/activateAgency/:id")
   .patch(authController.protect, adminController.activateAgents);
+
+router
+  .route("/addAgentBalance/:id")
+  .patch(authController.protect, adminController.addAgentCreditBalance);
 module.exports = router;

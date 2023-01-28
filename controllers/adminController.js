@@ -265,3 +265,19 @@ exports.activateAgents = async (req, res) => {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
 };
+
+exports.addAgentCreditBalance = async (req, res) => {
+  try {
+    id = req.params.id;
+    balance = req.body.balance;
+    console.log(balance);
+    agent = await agentModel.findByIdAndUpdate(
+      { _id: id },
+      { balance: balance }
+    );
+
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
