@@ -14,6 +14,132 @@ const oneWay = async function (
   DestinationLocationCode,
   AirType,
   ADT,
+  // CHD,
+  INF
+) {
+  console.log(`-----------------`);
+  console.log(ADT, CHD, INF);
+  const response = await axios({
+    method: "post",
+    url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+    },
+    data: {
+      OriginDestinationInformations: [
+        {
+          DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+          OriginLocationCode: OriginLocationCode,
+          DestinationLocationCode: DestinationLocationCode,
+        },
+      ],
+      TravelPreferences: {
+        MaxStopsQuantity: "Direct",
+        VendorPreferenceCodes: ["EK"],
+        CabinPreference: "Y",
+        Preferences: {
+          CabinClassPreference: {
+            CabinType: "Y",
+            PreferenceLevel: "Restricted",
+          },
+        },
+        AirTripType: "OneWay",
+      },
+      PricingSourceType: "Public",
+      IsRefundable: true,
+      PassengerTypeQuantities: [
+        {
+          Code: "ADT",
+          Quantity: ADT,
+        },
+        // {
+        //   Code: "CHD",
+        //   Quantity: CHD,
+        // },
+      ],
+
+      RequestOptions: "Fifty",
+      NearByAirports: true,
+      Target: "Test",
+      ConversationId: "string",
+    },
+  });
+
+  return response;
+};
+const returnTwoWay = async function (
+  DepartureDateTime,
+  OriginLocationCode,
+  DestinationLocationCode,
+  DepartureDateTime1,
+  OriginLocationCode1,
+  DestinationLocationCode1,
+  AirType,
+  ADT,
+  // CHD,
+  INF
+) {
+  console.log(ADT);
+  const response = await axios({
+    method: "post",
+    url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+    },
+    data: {
+      OriginDestinationInformations: [
+        {
+          DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+          OriginLocationCode: OriginLocationCode,
+          DestinationLocationCode: DestinationLocationCode,
+        },
+        {
+          DepartureDateTime: `${DepartureDateTime1}T00:00:00`,
+          OriginLocationCode: OriginLocationCode1,
+          DestinationLocationCode: DestinationLocationCode1,
+        },
+      ],
+      TravelPreferences: {
+        MaxStopsQuantity: "Direct",
+        VendorPreferenceCodes: ["EK"],
+        CabinPreference: "Y",
+        Preferences: {
+          CabinClassPreference: {
+            CabinType: "Y",
+            PreferenceLevel: "Restricted",
+          },
+        },
+        AirTripType: "Return",
+      },
+      PricingSourceType: "Public",
+      IsRefundable: true,
+      PassengerTypeQuantities: [
+        {
+          Code: "ADT",
+          Quantity: ADT,
+        },
+        // {
+        //   Code: "CHD",
+        //   Quantity: CHD,
+        // },
+      ],
+      RequestOptions: "Fifty",
+      NearByAirports: true,
+      Target: "Test",
+      ConversationId: "string",
+    },
+  });
+  return response;
+};
+
+const oneWay1 = async function (
+  DepartureDateTime,
+  OriginLocationCode,
+  DestinationLocationCode,
+  AirType,
+  ADT,
   CHD,
   INF
 ) {
@@ -68,7 +194,7 @@ const oneWay = async function (
 
   return response;
 };
-const returnTwoWay = async function (
+const returnTwoWay1 = async function (
   DepartureDateTime,
   OriginLocationCode,
   DestinationLocationCode,
@@ -220,15 +346,10 @@ exports.mystiflyApiSearch = async (req, res) => {
       ADT = 1;
     }
     if (req.body.CHD === undefined || "0") {
-      CHD = 1;
+      CHD = 0;
     }
-    // if (req.body.INF === undefined || 0) {
-    //   INF = 1;
-    // }
-    console.log(`------------------------`);
-    console.log(ADT, CHD, INF);
-    console.log(`CHD:${CHD}`);
-    if (AirType === "OneWay") {
+
+    if (AirType === "OneWay" && CHD === 0) {
       console.log(AirType);
 
       response = oneWay(
@@ -237,11 +358,34 @@ exports.mystiflyApiSearch = async (req, res) => {
         DestinationLocationCode,
         AirType,
         ADT,
+        INF
+      );
+    } else if (AirType === "return" && CHD === 0) {
+      response = returnTwoWay(
+        DepartureDateTime,
+        OriginLocationCode,
+        DestinationLocationCode,
+        DepartureDateTime1,
+        OriginLocationCode1,
+        DestinationLocationCode1,
+        AirType,
+        ADT,
+        INF
+      );
+    } else if (AirType === "OneWay" && CHD > 0) {
+      console.log(AirType);
+
+      response = oneWay1(
+        DepartureDateTime,
+        OriginLocationCode,
+        DestinationLocationCode,
+        AirType,
+        ADT,
         CHD,
         INF
       );
-    } else if (AirType === "return") {
-      response = returnTwoWay(
+    } else if (AirType === "return" && CHD > 0) {
+      response = returnTwoWay1(
         DepartureDateTime,
         OriginLocationCode,
         DestinationLocationCode,
@@ -356,9 +500,10 @@ exports.mystiflyApiSearch = async (req, res) => {
   }
 };
 
-exports.revalidateFlights = async (req, res) => {
+exports.flightFaresRules = async (req, res) => {
   try {
-    const { FareSourceCode, Target, ConversationId } = req.body;
+    // const { FareSourceCode } = req.body;
+    FareSourceCode = req.params.fareSourceCode;
     const response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
@@ -368,13 +513,45 @@ exports.revalidateFlights = async (req, res) => {
       },
       data: {
         FareSourceCode,
-        Target: "Development",
-        ConversationId: "string",
+        Target: "Test",
+        ConversationId: "tygsyqYbhU678",
+      },
+    });
+    data = response.data;
+    res.status(200).json({ data });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.revalidateFlights = async (req, res) => {
+  try {
+    FareSourceCode = req.params.fareSourceCode;
+    // const { FareSourceCode, Target, ConversationId } = req.body;
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        FareSourceCode,
+        Target: "Test",
+        ConversationId: "tygsyqYbhU678",
       },
     });
     console.log(response.data);
     data = response.data;
-    res.status(200).json({ status: "sucess", flights });
+    res.status(200).json({ status: "sucess", data });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.bookFlight = async (req, res) => {
+  try {
+    res.status(200).json({ status: "sucess", data });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
