@@ -2,7 +2,7 @@ const axios = require("axios");
 const _ = require("lodash");
 ////////////////////
 
-let response;
+// let response;
 let flightSegment;
 let flightSegment1;
 let itinearyRefernce;
@@ -230,6 +230,7 @@ exports.mystiflyApiSearch = async (req, res) => {
     console.log(`CHD:${CHD}`);
     if (AirType === "OneWay") {
       console.log(AirType);
+
       response = oneWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -239,8 +240,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CHD,
         INF
       );
-    }
-    if (AirType === "return") {
+    } else if (AirType === "return") {
       response = returnTwoWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -253,8 +253,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CHD,
         INF
       );
-    }
-    if (AirType === "Round") {
+    } else if (AirType === "Round") {
       response = roundFlight(
         DepartureDateTime,
         OriginLocationCode,
