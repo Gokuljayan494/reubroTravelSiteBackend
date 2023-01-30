@@ -4,6 +4,6 @@ const router = express.Router();
 
 const mystiflyController = require("../controllers/mystiflyController");
 router.post("/searchFlights", mystiflyController.mystiflyApiSearch);
-router.post("/FlightFareRules", mystiflyController.mystiflyApiSearch);
+router.post("/revalidateFlights", mystiflyController.revalidateFlights);
 
 module.exports = router;

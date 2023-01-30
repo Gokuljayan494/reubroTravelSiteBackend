@@ -274,7 +274,7 @@ exports.mystiflyApiSearch = async (req, res) => {
     flightSegmentList = data.data.Data.FlightSegmentList;
     FlightFaresList = data.data.Data.FlightFaresList;
     ItineraryReferenceList = data.data.Data.ItineraryReferenceList;
-
+    FulfillmentDetailsList = data.data.Data.FulfillmentDetailsList;
     const flights = pricedItineraries.map((itinerary) => {
       // Get the segment details for each flight
       const segmentRef = itinerary.OriginDestinations[0].SegmentRef;
@@ -284,11 +284,21 @@ exports.mystiflyApiSearch = async (req, res) => {
       );
 
       const itinearyRef = itinerary.OriginDestinations[0].ItineraryRef;
+      console.log(`-----------------`);
+      console.log(`-----------------`);
+      console.log(`-----------------`);
       console.log(itinearyRef);
+
       // Get the fare details for each flight
 
-      const itinearyRefernce = ItineraryReferenceList.find(
-        (ItineraryRef) => itinearyRef.itinearyRef === itinearyRef
+      const itinearyRefernce = ItineraryReferenceList.find((ItineraryRef) => {
+        return ItineraryRef.ItineraryRef === itinearyRef;
+      });
+
+      fullfilmentDetail = itinerary.FulfillmentDetailsRef;
+
+      fulFilmentDetailRef = FulfillmentDetailsList.find(
+        (fulfilment) => fulfilment === fullfilmentDetail
       );
 
       const fareRef = itinerary.FareRef;
@@ -297,10 +307,14 @@ exports.mystiflyApiSearch = async (req, res) => {
         (fare) => fare.FareRef === fareRef
       );
       console.log(flightFare);
+      console.log(`--------------`);
+      console.log(itinearyRefernce);
       flight = {
+        FareSourceCode: itinerary.FareSourceCode,
         flightDetails: flightSegment,
         flightFare: flightFare,
-        // itinearyRef: itinearyRefernce,
+        itinearyRef: itinearyRefernce,
+        fullfilmentDetail: fulFilmentDetailRef,
       };
       return flight;
     });
@@ -316,7 +330,7 @@ exports.mystiflyApiSearch = async (req, res) => {
   }
 };
 
-exports.flightFareRules = async (req, res) => {
+exports.revalidateFlights = async (req, res) => {
   try {
     const { FareSourceCode, Target, ConversationId } = req.body;
     const response = await axios({
@@ -329,10 +343,12 @@ exports.flightFareRules = async (req, res) => {
       data: {
         FareSourceCode,
         Target: "Development",
-        ConversationId,
+        ConversationId: "string",
       },
     });
-    res.status(200).json({});
+    console.log(response.data);
+    data = response.data;
+    res.status(200).json({ status: "sucess", data });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
