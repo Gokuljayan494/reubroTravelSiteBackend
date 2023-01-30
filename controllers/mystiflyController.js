@@ -3,9 +3,11 @@ const _ = require("lodash");
 ////////////////////
 
 let response;
-flightvalue = [];
-let fareList = [];
-let baggageList = [];
+let flightSegment;
+let flightSegment1;
+let itinearyRefernce;
+let itinearyRefernce1;
+
 const oneWay = async function (
   DepartureDateTime,
   OriginLocationCode,
@@ -265,36 +267,63 @@ exports.mystiflyApiSearch = async (req, res) => {
     }
 
     data = await response;
-    newone = [];
-    let flightSegments;
-
-    // data = data.data;
 
     pricedItineraries = data.data.Data.PricedItineraries;
     flightSegmentList = data.data.Data.FlightSegmentList;
     FlightFaresList = data.data.Data.FlightFaresList;
     ItineraryReferenceList = data.data.Data.ItineraryReferenceList;
     FulfillmentDetailsList = data.data.Data.FulfillmentDetailsList;
+
+    //////////////////////////////////////
+
+    // mapping the pricedItineraries with other irinaties
+
     const flights = pricedItineraries.map((itinerary) => {
-      // Get the segment details for each flight
       const segmentRef = itinerary.OriginDestinations[0].SegmentRef;
-      console.log(segmentRef);
-      const flightSegment = flightSegmentList.find(
-        (segment) => segment.SegmentRef === segmentRef
-      );
 
-      const itinearyRef = itinerary.OriginDestinations[0].ItineraryRef;
-      console.log(`-----------------`);
-      console.log(`-----------------`);
-      console.log(`-----------------`);
-      console.log(itinearyRef);
+      //  this work when airtype is OneWay
+      if (itinerary.OriginDestinations[1] === undefined) {
+        console.log(`hello`);
+        flightSegment = flightSegmentList.find((segment) => {
+          console.log(`------------------------------`);
+          console.log(segment);
+          console.log(segment.SegmentRef === segmentRef);
+          return segment.SegmentRef === segmentRef;
+        });
+      }
 
-      // Get the fare details for each flight
+      //  this work when airtype is return
 
-      const itinearyRefernce = ItineraryReferenceList.find((ItineraryRef) => {
-        return ItineraryRef.ItineraryRef === itinearyRef;
-      });
+      if (itinerary.OriginDestinations[1]) {
+        flightSegment = flightSegmentList.find((segment) => {
+          console.log(`------------------------------`);
+          console.log(segment);
+          console.log(segment.SegmentRef === segmentRef);
+          return segment.SegmentRef === segmentRef;
+        });
+        segmentRef1 = itinerary.OriginDestinations[1].SegmentRef;
+        flightSegment1 = flightSegmentList.find((segment) => {
+          return segment.SegmentRef === segmentRef1;
+        });
+      }
 
+      itinearyRef = itinerary.OriginDestinations[0].ItineraryRef;
+
+      if (!itinerary.OriginDestinations[1] === undefined) {
+        itinearyRefernce = ItineraryReferenceList.find((ItineraryRef) => {
+          return ItineraryRef.ItineraryRef === itinearyRef;
+        });
+      }
+      if (itinerary.OriginDestinations[1]) {
+        itinearyRefernce = ItineraryReferenceList.find((ItineraryRef) => {
+          return ItineraryRef.ItineraryRef === itinearyRef;
+        });
+        itinearyRef1 = itinerary.OriginDestinations[1].ItineraryRef;
+
+        itinearyRefernce1 = ItineraryReferenceList.find((ItineraryRef) => {
+          return ItineraryRef.ItineraryRef === itinearyRef1;
+        });
+      }
       fullfilmentDetail = itinerary.FulfillmentDetailsRef;
 
       fulFilmentDetailRef = FulfillmentDetailsList.find(
@@ -302,25 +331,23 @@ exports.mystiflyApiSearch = async (req, res) => {
       );
 
       const fareRef = itinerary.FareRef;
-      console.log(fareRef);
       const flightFare = FlightFaresList.find(
         (fare) => fare.FareRef === fareRef
       );
-      console.log(flightFare);
-      console.log(`--------------`);
-      console.log(itinearyRefernce);
+
       flight = {
         FareSourceCode: itinerary.FareSourceCode,
         flightDetails: flightSegment,
+        flightDetailsReturn: flightSegment1,
         flightFare: flightFare,
         itinearyRef: itinearyRefernce,
+        itinearyReturn: itinearyRefernce1,
         fullfilmentDetail: fulFilmentDetailRef,
       };
       return flight;
     });
 
     data = data.data;
-    // console.log(newone);
 
     res.status(200).json({
       flights,
@@ -348,7 +375,7 @@ exports.revalidateFlights = async (req, res) => {
     });
     console.log(response.data);
     data = response.data;
-    res.status(200).json({ status: "sucess", data });
+    res.status(200).json({ status: "sucess", flights });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
