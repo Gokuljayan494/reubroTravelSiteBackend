@@ -282,15 +282,16 @@ exports.mystiflyApiSearch = async (req, res) => {
       const flightSegment = flightSegmentList.find(
         (segment) => segment.SegmentRef === segmentRef
       );
-      console.log(flightSegment);
 
-      // save this flight segment
-
+      const itinearyRef = itinerary.OriginDestinations[0].ItineraryRef;
+      console.log(itinearyRef);
       // Get the fare details for each flight
+
+      const itinearyRefernce = ItineraryReferenceList.find(
+        (ItineraryRef) => itinearyRef.itinearyRef === itinearyRef
+      );
+
       const fareRef = itinerary.FareRef;
-      console.log(`----------`);
-      console.log(`----------`);
-      console.log(`----------`);
       console.log(fareRef);
       const flightFare = FlightFaresList.find(
         (fare) => fare.FareRef === fareRef
@@ -299,6 +300,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       flight = {
         flightDetails: flightSegment,
         flightFare: flightFare,
+        // itinearyRef: itinearyRefernce,
       };
       return flight;
     });
@@ -309,6 +311,28 @@ exports.mystiflyApiSearch = async (req, res) => {
     res.status(200).json({
       flights,
     });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.flightFareRules = async (req, res) => {
+  try {
+    const { FareSourceCode, Target, ConversationId } = req.body;
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        FareSourceCode,
+        Target: "Development",
+        ConversationId,
+      },
+    });
+    res.status(200).json({});
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
