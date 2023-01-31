@@ -18,7 +18,6 @@ const oneWay = async function (
   INF
 ) {
   console.log(`-----------------`);
-  console.log(ADT, CHD, INF);
   const response = await axios({
     method: "post",
     url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
@@ -144,7 +143,6 @@ const oneWay1 = async function (
   INF
 ) {
   console.log(`-----------------`);
-  console.log(ADT, CHD, INF);
   const response = await axios({
     method: "post",
     url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
