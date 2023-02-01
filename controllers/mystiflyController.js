@@ -145,7 +145,7 @@ const returnTwoWay = async function (
     }
     return response;
   } catch (err) {
-    res.status(400).json(message:`Error:${err.message}`)
+    res.status(400).json({ message: `Error:${err.message}` });
   }
 };
 
