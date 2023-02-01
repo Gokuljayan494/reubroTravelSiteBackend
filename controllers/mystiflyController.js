@@ -404,7 +404,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    } else if (AirType === "return" && CHD === 0) {
+    }
+    if (AirType === "return" && CHD === 0) {
       response = returnTwoWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -419,7 +420,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    } else if (AirType === "OneWay" && CHD > 0) {
+    }
+    if (AirType === "OneWay" && CHD > 0) {
       console.log(AirType);
 
       response = oneWay1(
@@ -434,7 +436,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    } else if (AirType === "return" && CHD > 0) {
+    }
+    if (AirType === "return" && CHD > 0) {
       response = returnTwoWay1(
         DepartureDateTime,
         OriginLocationCode,
@@ -450,7 +453,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    } else if (AirType === "Round") {
+    }
+    if (AirType === "Round") {
       response = roundFlight(
         DepartureDateTime,
         OriginLocationCode,
