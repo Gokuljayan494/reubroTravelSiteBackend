@@ -94,7 +94,16 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   try {
     const { otp, password, passwordConfirm } = req.body;
-    admin = await AdminModel.findOne({ otp, otpExpires: { $gte: Date.now() } });
+    const email = req.params.email;
+
+    // find the account and compare with the entered otp and save otp in database
+
+    admin = await AdminModel.findOne({ email });
+
+    admin = await AdminModel.findOne({
+      otp,
+      otpExpires: { $gte: Date.now() },
+    });
     if (!admin) {
       throw new Error("invalid otp ");
     }

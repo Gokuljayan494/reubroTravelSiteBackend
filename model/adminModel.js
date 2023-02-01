@@ -54,7 +54,7 @@ adminSchema.methods.createOtp = function (next) {
   var maxm = 999999;
   let OTP = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
 
-  this.otp = OTP;
+  this.otp = bcrypt.hash(OTP, 12);
   console.log(this.otp);
   this.otpExpires = Date.now() + 10 * 60 * 1000;
   console.log(this.otpExpires);

@@ -14,7 +14,6 @@ const oneWay = async function (
   DestinationLocationCode,
   AirType,
   ADT,
-  // CHD,
   INF
 ) {
   console.log(`-----------------`);
@@ -52,10 +51,6 @@ const oneWay = async function (
           Code: "ADT",
           Quantity: ADT,
         },
-        // {
-        //   Code: "CHD",
-        //   Quantity: CHD,
-        // },
       ],
 
       RequestOptions: "Fifty",
@@ -339,11 +334,11 @@ exports.mystiflyApiSearch = async (req, res) => {
     } = req.body;
     console.log(req.body.ADT);
     console.log(req.body.ADT == undefined);
-    if (req.body.ADT === undefined || "0") {
+    if (req.body.ADT === undefined || 0) {
       console.log(`hello`);
       ADT = 1;
     }
-    if (req.body.CHD === undefined || "0") {
+    if (req.body.CHD === undefined || 0) {
       CHD = 0;
     }
 
@@ -358,7 +353,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         ADT,
         INF
       );
-    } else if (AirType === "return" && CHD === 0) {
+    }
+    if (AirType === "return" && CHD === 0) {
       response = returnTwoWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -370,7 +366,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         ADT,
         INF
       );
-    } else if (AirType === "OneWay" && CHD > 0) {
+    }
+    if (AirType === "OneWay" && CHD > 0) {
       console.log(AirType);
 
       response = oneWay1(
