@@ -538,7 +538,9 @@ exports.mystiflyApiSearch = async (req, res) => {
       flights,
     });
   } catch (err) {
-    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+    res
+      .status(400)
+      .json({ status: "fail", message: `Error:${err.message}hello` });
   }
 };
 
