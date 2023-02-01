@@ -361,7 +361,7 @@ exports.mystiflyApiSearch = async (req, res) => {
     if (req.body.MaxStopsQuantity === undefined) {
       MaxStopsQuantity = "Direct";
     }
-    response = "";
+    // response = "";
     if (AirType === "OneWay" && CHD === 0) {
       console.log(AirType);
 
