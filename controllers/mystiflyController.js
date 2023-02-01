@@ -7,7 +7,7 @@ let flightSegment;
 let flightSegment1;
 let itinearyRefernce;
 let itinearyRefernce1;
-let response;
+let response1;
 
 const oneWay = async function (
   DepartureDateTime,
@@ -22,7 +22,7 @@ const oneWay = async function (
 ) {
   try {
     console.log(`-----------------`);
-    const value = await axios({
+    const response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
       headers: {
@@ -65,10 +65,10 @@ const oneWay = async function (
       },
     });
 
-    if (!value) {
+    if (!response) {
       throw new Error(await response.data);
     }
-    return value;
+    return response;
   } catch (err) {
     res.status(400).json({ message: `${err.message}` });
   }
@@ -150,6 +150,215 @@ const returnTwoWay = async function (
   }
 };
 
+const oneWay1 = async function (
+  DepartureDateTime,
+  OriginLocationCode,
+  DestinationLocationCode,
+  AirType,
+  ADT,
+  CHD,
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
+) {
+  try {
+    console.log(`-----------------`);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        OriginDestinationInformations: [
+          {
+            DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+            OriginLocationCode: OriginLocationCode,
+            DestinationLocationCode: DestinationLocationCode,
+          },
+        ],
+        TravelPreferences: {
+          MaxStopsQuantity: MaxStopsQuantity,
+          // VendorPreferenceCodes: ["EK"],
+          CabinPreference: CabinPreference,
+          Preferences: {
+            CabinClassPreference: {
+              CabinType: CabinType,
+              PreferenceLevel: "Restricted",
+            },
+          },
+          AirTripType: "OneWay",
+        },
+        PricingSourceType: "Public",
+        IsRefundable: true,
+        PassengerTypeQuantities: [
+          {
+            Code: "ADT",
+            Quantity: ADT,
+          },
+          {
+            Code: "CHD",
+            Quantity: CHD,
+          },
+        ],
+
+        RequestOptions: "Fifty",
+        NearByAirports: true,
+        Target: "Test",
+        ConversationId: "string",
+      },
+    });
+    if (!response) {
+      throw new Error(await response.data);
+    }
+    return response;
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `err.message` });
+  }
+};
+const returnTwoWay1 = async function (
+  DepartureDateTime,
+  OriginLocationCode,
+  DestinationLocationCode,
+  DepartureDateTime1,
+  OriginLocationCode1,
+  DestinationLocationCode1,
+  AirType,
+  ADT,
+  CHD,
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
+) {
+  try {
+    console.log(ADT);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        OriginDestinationInformations: [
+          {
+            DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+            OriginLocationCode: OriginLocationCode,
+            DestinationLocationCode: DestinationLocationCode,
+          },
+          {
+            DepartureDateTime: `${DepartureDateTime1}T00:00:00`,
+            OriginLocationCode: OriginLocationCode1,
+            DestinationLocationCode: DestinationLocationCode1,
+          },
+        ],
+        TravelPreferences: {
+          MaxStopsQuantity: MaxStopsQuantity,
+          // VendorPreferenceCodes: ["EK"],
+          CabinPreference: CabinPreference,
+          Preferences: {
+            CabinClassPreference: {
+              CabinType: CabinType,
+              PreferenceLevel: "Restricted",
+            },
+          },
+          AirTripType: "Return",
+        },
+        PricingSourceType: "Public",
+        IsRefundable: true,
+        PassengerTypeQuantities: [
+          {
+            Code: "ADT",
+            Quantity: ADT,
+          },
+          {
+            Code: "CHD",
+            Quantity: CHD,
+          },
+        ],
+        RequestOptions: "Fifty",
+        NearByAirports: true,
+        Target: "Test",
+        ConversationId: "string",
+      },
+    });
+    if (!response) {
+      throw new Error(await response.data);
+    }
+    return response;
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+const roundFlight = async function (
+  DepartureDateTime,
+  OriginLocationCode,
+  DestinationLocationCode,
+  AirType,
+  ADT,
+  CHD,
+  INF
+) {
+  const response = await axios({
+    method: "post",
+    url: "https://restapidemo.myfarebox.com/api/v1/Search/Flight",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+    },
+    data: {
+      OriginDestinationInformations: [
+        {
+          DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+          OriginLocationCode: OriginLocationCode,
+          DestinationLocationCode: DestinationLocationCode,
+        },
+        {
+          DepartureDateTime: "2023-02-25T00:00:00",
+          OriginLocationCode: "DXB",
+          DestinationLocationCode: "BLR",
+        },
+      ],
+      TravelPreferences: {
+        MaxStopsQuantity: "Direct",
+        VendorPreferenceCodes: ["EK"],
+        CabinPreference: "Y",
+        Preferences: {
+          CabinClassPreference: {
+            CabinType: "Y",
+            PreferenceLevel: "Restricted",
+          },
+        },
+        AirTripType: "Circle",
+      },
+      PricingSourceType: "Public",
+      IsRefundable: true,
+      PassengerTypeQuantities: [
+        {
+          Code: "ADT",
+          Quantity: ADT,
+        },
+        {
+          Code: "CHD",
+          Quantity: CHD,
+        },
+        {
+          Code: "INF",
+          Quantity: INF,
+        },
+      ],
+      RequestOptions: "Fifty",
+      NearByAirports: true,
+      Target: "Test",
+      ConversationId: "string",
+    },
+  });
+  return response;
+};
 exports.mystiflyApiSearch = async (req, res) => {
   try {
     let {
@@ -213,10 +422,55 @@ exports.mystiflyApiSearch = async (req, res) => {
         MaxStopsQuantity
       );
     }
+    if (AirType === "OneWay" && CHD > 0) {
+      console.log(AirType);
 
+      response1 = oneWay1(
+        DepartureDateTime,
+        OriginLocationCode,
+        DestinationLocationCode,
+        AirType,
+        ADT,
+        CHD,
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
+      );
+    }
+    if (AirType === "return" && CHD > 0) {
+      response = returnTwoWay1(
+        DepartureDateTime,
+        OriginLocationCode,
+        DestinationLocationCode,
+        DepartureDateTime1,
+        OriginLocationCode1,
+        DestinationLocationCode1,
+        AirType,
+        ADT,
+        CHD,
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
+      );
+    }
+    if (AirType === "Round") {
+      response = roundFlight(
+        DepartureDateTime,
+        OriginLocationCode,
+        DestinationLocationCode,
+        AirType,
+        ADT,
+        CHD,
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
+      );
+    }
     console.log(response);
-
-    data = await response;
+    data = await response1;
     if (!data) {
       throw new Error("no data ");
     }
