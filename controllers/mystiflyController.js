@@ -19,51 +19,58 @@ const oneWay = async function (
   CabinPreference,
   MaxStopsQuantity
 ) {
-  console.log(`-----------------`);
-  const response = await axios({
-    method: "post",
-    url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
-    },
-    data: {
-      OriginDestinationInformations: [
-        {
-          DepartureDateTime: `${DepartureDateTime}T00:00:00`,
-          OriginLocationCode: OriginLocationCode,
-          DestinationLocationCode: DestinationLocationCode,
-        },
-      ],
-      TravelPreferences: {
-        MaxStopsQuantity: MaxStopsQuantity,
-        // VendorPreferenceCodes: ["EK"],
-        CabinPreference: CabinPreference,
-        Preferences: {
-          CabinClassPreference: {
-            CabinType: CabinType,
-            PreferenceLevel: "Restricted",
-          },
-        },
-        AirTripType: "OneWay",
+  try {
+    console.log(`-----------------`);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
       },
-      PricingSourceType: "Public",
-      IsRefundable: true,
-      PassengerTypeQuantities: [
-        {
-          Code: "ADT",
-          Quantity: ADT,
+      data: {
+        OriginDestinationInformations: [
+          {
+            DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+            OriginLocationCode: OriginLocationCode,
+            DestinationLocationCode: DestinationLocationCode,
+          },
+        ],
+        TravelPreferences: {
+          MaxStopsQuantity: MaxStopsQuantity,
+          // VendorPreferenceCodes: ["EK"],
+          CabinPreference: CabinPreference,
+          Preferences: {
+            CabinClassPreference: {
+              CabinType: CabinType,
+              PreferenceLevel: "Restricted",
+            },
+          },
+          AirTripType: "OneWay",
         },
-      ],
+        PricingSourceType: "Public",
+        IsRefundable: true,
+        PassengerTypeQuantities: [
+          {
+            Code: "ADT",
+            Quantity: ADT,
+          },
+        ],
 
-      RequestOptions: "Fifty",
-      NearByAirports: true,
-      Target: "Test",
-      ConversationId: "string",
-    },
-  });
+        RequestOptions: "Fifty",
+        NearByAirports: true,
+        Target: "Test",
+        ConversationId: "string",
+      },
+    });
 
-  return response;
+    if (!response) {
+      throw new Error(response);
+    }
+    return response;
+  } catch (err) {
+    res.status(400).json({ message: `${err.message}` });
+  }
 };
 const returnTwoWay = async function (
   DepartureDateTime,
@@ -80,58 +87,66 @@ const returnTwoWay = async function (
   CabinPreference,
   MaxStopsQuantity
 ) {
-  console.log(ADT);
-  const response = await axios({
-    method: "post",
-    url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
-    },
-    data: {
-      OriginDestinationInformations: [
-        {
-          DepartureDateTime: `${DepartureDateTime}T00:00:00`,
-          OriginLocationCode: OriginLocationCode,
-          DestinationLocationCode: DestinationLocationCode,
-        },
-        {
-          DepartureDateTime: `${DepartureDateTime1}T00:00:00`,
-          OriginLocationCode: OriginLocationCode1,
-          DestinationLocationCode: DestinationLocationCode1,
-        },
-      ],
-      TravelPreferences: {
-        MaxStopsQuantity: MaxStopsQuantity,
-        // VendorPreferenceCodes: ["EK"],
-        CabinPreference: CabinPreference,
-        Preferences: {
-          CabinClassPreference: {
-            CabinType: CabinType,
-            PreferenceLevel: "Restricted",
-          },
-        },
-        AirTripType: "Return",
+  try {
+    console.log(ADT);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
       },
-      PricingSourceType: "Public",
-      IsRefundable: true,
-      PassengerTypeQuantities: [
-        {
-          Code: "ADT",
-          Quantity: ADT,
+      data: {
+        OriginDestinationInformations: [
+          {
+            DepartureDateTime: `${DepartureDateTime}T00:00:00`,
+            OriginLocationCode: OriginLocationCode,
+            DestinationLocationCode: DestinationLocationCode,
+          },
+          {
+            DepartureDateTime: `${DepartureDateTime1}T00:00:00`,
+            OriginLocationCode: OriginLocationCode1,
+            DestinationLocationCode: DestinationLocationCode1,
+          },
+        ],
+        TravelPreferences: {
+          MaxStopsQuantity: MaxStopsQuantity,
+          // VendorPreferenceCodes: ["EK"],
+          CabinPreference: CabinPreference,
+          Preferences: {
+            CabinClassPreference: {
+              CabinType: CabinType,
+              PreferenceLevel: "Restricted",
+            },
+          },
+          AirTripType: "Return",
         },
-        // {
-        //   Code: "CHD",
-        //   Quantity: CHD,
-        // },
-      ],
-      RequestOptions: "Fifty",
-      NearByAirports: true,
-      Target: "Test",
-      ConversationId: "string",
-    },
-  });
-  return response;
+        PricingSourceType: "Public",
+        IsRefundable: true,
+        PassengerTypeQuantities: [
+          {
+            Code: "ADT",
+            Quantity: ADT,
+          },
+          // {
+          //   Code: "CHD",
+          //   Quantity: CHD,
+          // },
+        ],
+        RequestOptions: "Fifty",
+        NearByAirports: true,
+        Target: "Test",
+        ConversationId: "string",
+      },
+    });
+    console.log(response);
+    if (!response) {
+      throw new Error("no response");
+    }
+    return response;
+  } catch (err) {
+    res.status(400).json(message:`Error:${err.message}`)
+  }
 };
 
 const oneWay1 = async function (
