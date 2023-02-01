@@ -1,5 +1,4 @@
 const axios = require("axios");
-// const { response } = require("express");
 const _ = require("lodash");
 ////////////////////
 
@@ -8,13 +7,17 @@ let flightSegment;
 let flightSegment1;
 let itinearyRefernce;
 let itinearyRefernce1;
+
 const oneWay = async function (
   DepartureDateTime,
   OriginLocationCode,
   DestinationLocationCode,
   AirType,
   ADT,
-  INF
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
 ) {
   console.log(`-----------------`);
   const response = await axios({
@@ -33,12 +36,12 @@ const oneWay = async function (
         },
       ],
       TravelPreferences: {
-        MaxStopsQuantity: "Direct",
-        VendorPreferenceCodes: ["EK"],
-        CabinPreference: "Y",
+        MaxStopsQuantity: MaxStopsQuantity,
+        // VendorPreferenceCodes: ["EK"],
+        CabinPreference: CabinPreference,
         Preferences: {
           CabinClassPreference: {
-            CabinType: "Y",
+            CabinType: CabinType,
             PreferenceLevel: "Restricted",
           },
         },
@@ -72,7 +75,10 @@ const returnTwoWay = async function (
   AirType,
   ADT,
   // CHD,
-  INF
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
 ) {
   console.log(ADT);
   const response = await axios({
@@ -96,12 +102,12 @@ const returnTwoWay = async function (
         },
       ],
       TravelPreferences: {
-        MaxStopsQuantity: "Direct",
-        VendorPreferenceCodes: ["EK"],
-        CabinPreference: "Y",
+        MaxStopsQuantity: MaxStopsQuantity,
+        // VendorPreferenceCodes: ["EK"],
+        CabinPreference: CabinPreference,
         Preferences: {
           CabinClassPreference: {
-            CabinType: "Y",
+            CabinType: CabinType,
             PreferenceLevel: "Restricted",
           },
         },
@@ -135,7 +141,10 @@ const oneWay1 = async function (
   AirType,
   ADT,
   CHD,
-  INF
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
 ) {
   console.log(`-----------------`);
   const response = await axios({
@@ -154,12 +163,12 @@ const oneWay1 = async function (
         },
       ],
       TravelPreferences: {
-        MaxStopsQuantity: "Direct",
-        VendorPreferenceCodes: ["EK"],
-        CabinPreference: "Y",
+        MaxStopsQuantity: MaxStopsQuantity,
+        // VendorPreferenceCodes: ["EK"],
+        CabinPreference: CabinPreference,
         Preferences: {
           CabinClassPreference: {
-            CabinType: "Y",
+            CabinType: CabinType,
             PreferenceLevel: "Restricted",
           },
         },
@@ -197,7 +206,10 @@ const returnTwoWay1 = async function (
   AirType,
   ADT,
   CHD,
-  INF
+  INF,
+  CabinType,
+  CabinPreference,
+  MaxStopsQuantity
 ) {
   console.log(ADT);
   const response = await axios({
@@ -221,12 +233,12 @@ const returnTwoWay1 = async function (
         },
       ],
       TravelPreferences: {
-        MaxStopsQuantity: "Direct",
-        VendorPreferenceCodes: ["EK"],
-        CabinPreference: "Y",
+        MaxStopsQuantity: MaxStopsQuantity,
+        // VendorPreferenceCodes: ["EK"],
+        CabinPreference: CabinPreference,
         Preferences: {
           CabinClassPreference: {
-            CabinType: "Y",
+            CabinType: CabinType,
             PreferenceLevel: "Restricted",
           },
         },
@@ -341,9 +353,15 @@ exports.mystiflyApiSearch = async (req, res) => {
     if (req.body.CHD === undefined || 0) {
       CHD = 0;
     }
-
-    response = "";
-
+    if (req.body.CabinType === undefined) {
+      CabinType = "Y";
+    }
+    if (req.body.CabinPreference === undefined) {
+      CabinPreference = "Y";
+    }
+    if (req.body.MaxStopsQuantity === undefined) {
+      MaxStopsQuantity = "Direct";
+    }
     if (AirType === "OneWay" && CHD === 0) {
       console.log(AirType);
 
@@ -353,7 +371,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         DestinationLocationCode,
         AirType,
         ADT,
-        INF
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
       );
     }
     if (AirType === "return" && CHD === 0) {
@@ -366,7 +387,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         DestinationLocationCode1,
         AirType,
         ADT,
-        INF
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
       );
     }
     if (AirType === "OneWay" && CHD > 0) {
@@ -379,7 +403,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         AirType,
         ADT,
         CHD,
-        INF
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
       );
     } else if (AirType === "return" && CHD > 0) {
       response = returnTwoWay1(
@@ -392,7 +419,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         AirType,
         ADT,
         CHD,
-        INF
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
       );
     } else if (AirType === "Round") {
       response = roundFlight(
@@ -402,7 +432,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         AirType,
         ADT,
         CHD,
-        INF
+        INF,
+        CabinType,
+        CabinPreference,
+        MaxStopsQuantity
       );
     }
 
@@ -501,8 +534,7 @@ exports.flightFaresRules = async (req, res) => {
   try {
     // const { FareSourceCode } = req.body;
     FareSourceCode = req.params.fareSourceCode;
-
-    const response = await axios({
+    response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
       headers: {
@@ -526,8 +558,7 @@ exports.revalidateFlights = async (req, res) => {
   try {
     FareSourceCode = req.params.fareSourceCode;
     // const { FareSourceCode, Target, ConversationId } = req.body;
-
-    response = await axios({
+    const response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
       headers: {
