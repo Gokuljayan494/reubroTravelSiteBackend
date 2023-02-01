@@ -531,7 +531,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       }
     });
 
-    data = data.data;
+    // data = data.data;
 
     res.status(200).json({
       flights,
