@@ -7,6 +7,7 @@ let flightSegment;
 let flightSegment1;
 let itinearyRefernce;
 let itinearyRefernce1;
+let response1;
 
 const oneWay = async function (
   DepartureDateTime,
@@ -424,7 +425,7 @@ exports.mystiflyApiSearch = async (req, res) => {
     if (AirType === "OneWay" && CHD > 0) {
       console.log(AirType);
 
-      response = oneWay1(
+      response1 = oneWay1(
         DepartureDateTime,
         OriginLocationCode,
         DestinationLocationCode,
@@ -469,7 +470,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       );
     }
     console.log(response);
-    data = await response;
+    data = await response1;
     if (!data) {
       throw new Error("no data ");
     }
