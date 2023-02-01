@@ -376,8 +376,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    }
-    if (AirType === "return" && CHD === 0) {
+    } else if (AirType === "return" && CHD === 0) {
       response = returnTwoWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -392,8 +391,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    }
-    if (AirType === "OneWay" && CHD > 0) {
+    } else if (AirType === "OneWay" && CHD > 0) {
       console.log(AirType);
 
       response = oneWay1(
@@ -440,6 +438,9 @@ exports.mystiflyApiSearch = async (req, res) => {
     }
 
     data = await response;
+    if (!data) {
+      throw new Error("no data ");
+    }
 
     pricedItineraries = data.data.Data.PricedItineraries;
     flightSegmentList = data.data.Data.FlightSegmentList;
@@ -538,13 +539,10 @@ exports.mystiflyApiSearch = async (req, res) => {
       flights,
     });
   } catch (err) {
-    res
-      .status(400)
-      .json({
-        status: "fail",
-        message: `Error:${err.message}hello`,
-        DATA: data,
-      });
+    res.status(400).json({
+      status: "fail",
+      message: `Error:${err.message}`,
+    });
   }
 };
 
