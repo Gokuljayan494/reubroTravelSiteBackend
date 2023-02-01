@@ -540,7 +540,11 @@ exports.mystiflyApiSearch = async (req, res) => {
   } catch (err) {
     res
       .status(400)
-      .json({ status: "fail", message: `Error:${err.message}hello` });
+      .json({
+        status: "fail",
+        message: `Error:${err.message}hello`,
+        DATA: data,
+      });
   }
 };
 
