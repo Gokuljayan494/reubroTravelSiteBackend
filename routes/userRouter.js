@@ -19,7 +19,6 @@ router
   .post(userController.protect, userController.bookingsFlight);
 router.route("/bookings");
 router.route("/forgotPassword").post(userController.forgotPassword);
-
 router.route("/resetPassword/:email").patch(userController.resetPassword);
 
 module.exports = router;

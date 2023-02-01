@@ -344,8 +344,8 @@ exports.mystiflyApiSearch = async (req, res) => {
       CHD,
       INF,
     } = req.body;
-    console.log(req.body.ADT);
-    console.log(req.body.ADT == undefined);
+    response = "";
+
     if (req.body.ADT === undefined || 0) {
       console.log(`hello`);
       ADT = 1;
