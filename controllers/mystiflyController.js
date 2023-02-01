@@ -344,7 +344,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       CHD,
       INF,
     } = req.body;
-    response = "";
+    response = null;
 
     if (req.body.ADT === undefined || 0) {
       console.log(`hello`);
@@ -507,17 +507,29 @@ exports.mystiflyApiSearch = async (req, res) => {
       const flightFare = FlightFaresList.find(
         (fare) => fare.FareRef === fareRef
       );
-
-      flight = {
-        FareSourceCode: itinerary.FareSourceCode,
-        flightDetails: flightSegment,
-        flightDetailsReturn: flightSegment1,
-        flightFare: flightFare,
-        itinearyRef: itinearyRefernce,
-        itinearyReturn: itinearyRefernce1,
-        fullfilmentDetail: fulFilmentDetailRef,
-      };
-      return flight;
+      if (AirType === "return") {
+        flight = {
+          FareSourceCode: itinerary.FareSourceCode,
+          flightDetails: flightSegment,
+          flightDetailsReturn: flightSegment1,
+          flightFare: flightFare,
+          itinearyRef: itinearyRefernce,
+          itinearyReturn: itinearyRefernce1,
+          fullfilmentDetail: fulFilmentDetailRef,
+        };
+        return flight;
+      }
+      if (AirType === "OneWay") {
+        console.log(`hey`);
+        flight = {
+          FareSourceCode: itinerary.FareSourceCode,
+          flightDetails: flightSegment,
+          flightFare: flightFare,
+          itinearyRef: itinearyRefernce,
+          fullfilmentDetail: fulFilmentDetailRef,
+        };
+        return flight;
+      }
     });
 
     data = data.data;
