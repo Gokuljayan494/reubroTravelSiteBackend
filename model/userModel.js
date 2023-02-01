@@ -17,19 +17,6 @@ let userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // email: {
-    //   type: String,
-    // Math: [
-    //   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    //   ,
-    //   "please enter a  valid email id",
-    // ],
-    // validate: [validator.isEmail, "please provide a email"],
-    //   validate: [validator.isEmail, "please provide a email"],
-    //   unique: [true, "email used before"],
-    //   unique: [true, "email used before"],
-    //   required: true,
-    // },
     email: {
       type: String,
       Math: [
@@ -79,6 +66,11 @@ let userSchema = new mongoose.Schema(
       default: true,
       select: false,
     },
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpires: { type: Date },
   },
   {
     toJSON: { virtuals: true },
@@ -86,6 +78,27 @@ let userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.methods.createOtp = async function (next) {
+  console.log(`hello`);
+  var minm = 100000;
+  var maxm = 999999;
+  let OTP = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
+  OTP = OTP.toString();
+  console.log(`OTP:${OTP}`);
+  this.otp = await bcrypt.hash(OTP, 12);
+
+  console.log(`otp1:${this.otp}`);
+  this.otpExpires = Date.now() + 10 * 60 * 1000;
+  console.log(this.otpExpires);
+  console.log(`otp:${OTP}`);
+
+  return OTP;
+};
+userSchema.methods.compareOtp = async function () {
+  console.log(await bcrypt.compare(currentPassword, inputtedPassword));
+  return await bcrypt.compare(currentPassword, inputtedPassword);
+};
 userSchema.methods.checkPassword = async function (
   inputtedPassword,
   currentPassword

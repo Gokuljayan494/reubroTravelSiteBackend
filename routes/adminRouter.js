@@ -20,7 +20,7 @@ router
 router
   .route("/deleteBookings/:id")
   .delete(authController.protect, adminController.deleteBookings);
-router.patch("/forgotPassword", adminController.forgotPassword);
+router.post("/forgotPassword", adminController.forgotPassword);
 router.patch("/resetPassword/:email", adminController.resetPassword);
 router
   .route("/flightBookingDetails")

@@ -36,7 +36,7 @@ let adminSchema = new mongoose.Schema(
       },
     },
     otp: {
-      type: Number,
+      type: String,
       select: false,
     },
     otpExpires: { type: Date },
@@ -48,16 +48,20 @@ let adminSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-adminSchema.methods.createOtp = function (next) {
+adminSchema.methods.createOtp = async function (next) {
   console.log(`hello`);
   var minm = 100000;
   var maxm = 999999;
   let OTP = Math.floor(Math.random() * (maxm - minm + 1)) + minm;
+  OTP = OTP.toString();
+  console.log(`OTP:${OTP}`);
+  this.otp = await bcrypt.hash(OTP, 12);
 
-  this.otp = bcrypt.hash(OTP, 12);
-  console.log(this.otp);
+  console.log(`otp1:${this.otp}`);
   this.otpExpires = Date.now() + 10 * 60 * 1000;
   console.log(this.otpExpires);
+  console.log(`otp:${OTP}`);
+
   return OTP;
 };
 adminSchema.methods.checkPassword = async function (
@@ -65,12 +69,20 @@ adminSchema.methods.checkPassword = async function (
   currentPassword
 ) {
   console.log(await bcrypt.compare(currentPassword, inputtedPassword));
+  return await bcrypt.compare(currentPassword, inputtedPassword.toString());
+};
+adminSchema.methods.compareOtp = async function () {
+  console.log(await bcrypt.compare(currentPassword, inputtedPassword));
   return await bcrypt.compare(currentPassword, inputtedPassword);
 };
+
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+  console.log(this.passwordConfirm);
+  next();
 });
 
 AdminModel = mongoose.model("Admin", adminSchema);

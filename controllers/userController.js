@@ -7,6 +7,7 @@ const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const sgMail = require("@sendgrid/mail");
 const sendRegisterEmail = require("../utils/emailSendGrid");
+const sendEmail = require("../controllers/email");
 
 ////////////////////////////////////////////
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -193,6 +194,84 @@ exports.bookingsFlight = async (req, res) => {
 exports.getFlightBookingDetails = async (req, res) => {
   try {
     res.status(200).json({ status: "sucess", bookingFlight });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    user = await userModel.findOne({ email }).select("+password");
+    if (!user) {
+      throw new Error("invalid user");
+    }
+
+    otp = await user.createOtp();
+
+    user.save({ validateBeforeSave: false });
+    console.log(user);
+    let message = `
+
+        <h1>Hello!</h1>\n<div>This is your OTP FOR admin reset password. \n <h3> ${otp}</h3>. \n Regards \nTravel site</div>`;
+    user = await sendEmail({
+      email: user.email,
+      subject: `your password reset otp`,
+      message,
+    });
+    res.status(200).json({
+      status: "sucess",
+      message: `Otp has sent to mail `,
+    });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+exports.resetPassword = async (req, res) => {
+  try {
+    console.log(`hey`);
+    let { otp, password, passwordConfirm } = req.body;
+    if (!otp || !password || !passwordConfirm) {
+      throw new Error("input fields correctly");
+    }
+    const email = req.params.email;
+    console.log(`----`);
+
+    // find the account and compare with the entered otp and save otp in database
+
+    user = await userModel.findOne({ email }).select("+otp");
+    console.log(user);
+    console.log(user.otp);
+    // admin.compareOtp(admin.otp, otp);
+    if (!user && !(await user.compareOtp(user.otp, otp))) {
+      throw new Error("invalid otp or invalid user");
+    }
+
+    console.log(user);
+    otp = user.otp;
+    console.log(otp);
+    // user = await userModel.findOne({
+    //   otp,
+    //   otpExpires: { $gte: Date.now() },
+    // });
+    if (!user) {
+      throw new Error("invalid otp ");
+    }
+    user.password = password;
+    user.passwordConfirm = passwordConfirm;
+    user.save({ validateBeforeSave: false });
+
+    res.status(200).json({ status: "sucess", message: "password resetted" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.userBookings = async (req, res) => {
+  try {
+    id = req.user;
+    bookings = await boookingFlightModel.find({ user: id }).populate("user");
+    res.status(200).json({ status: "sucess", bookings });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }

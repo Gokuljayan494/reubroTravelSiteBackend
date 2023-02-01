@@ -71,8 +71,12 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     admin = await AdminModel.findOne({ email }).select("+password");
-    let otp = admin.createOtp();
-    console.log(otp);
+    if (!admin) {
+      throw new Error("invalid admin");
+    }
+
+    otp = await admin.createOtp();
+
     admin.save({ validateBeforeSave: false });
     console.log(admin);
     let message = `
@@ -93,13 +97,28 @@ exports.forgotPassword = async (req, res) => {
 };
 exports.resetPassword = async (req, res) => {
   try {
-    const { otp, password, passwordConfirm } = req.body;
+    let { otp, password, passwordConfirm } = req.body;
     const email = req.params.email;
+    console.log(`----`);
 
     // find the account and compare with the entered otp and save otp in database
 
-    admin = await AdminModel.findOne({ email });
+    admin = await AdminModel.findOne({ email }).select("+otp");
 
+    // admin.compareOtp(admin.otp, otp);
+    if (!admin && !(await admin.compareOtp(admin.otp, otp))) {
+      throw new Error("invalid otp or invalid admin");
+    }
+
+    // next validation
+
+    // here it checks if the otp we have entered expired or nor
+
+    // is the otpExpires time is greater than date now
+    console.log(admin);
+
+    otp = admin.otp;
+    console.log(otp);
     admin = await AdminModel.findOne({
       otp,
       otpExpires: { $gte: Date.now() },

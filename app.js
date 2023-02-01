@@ -14,11 +14,12 @@ const sgMail = require("@sendgrid/mail");
 const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 const ffprobe = require("@ffprobe-installer/ffprobe");
 const axios = require("axios");
+const helmet = require("helmet");
 
 //////////////////////
-// app.use("/uploads/users", express.static("/uploads/users"));
-// express.static(path.join(__dirname, "public"));
-console.log(path.join(__dirname + "/images"));
+
+app.use(helmet());
+
 app.use(express.static(path.join(__dirname + "/images")));
 
 app.use(express.json());
