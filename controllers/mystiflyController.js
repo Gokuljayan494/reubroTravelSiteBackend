@@ -373,13 +373,24 @@ exports.mystiflyApiSearch = async (req, res) => {
       CHD,
       INF,
     } = req.body;
-    console.log();
 
+    console.log(
+      DepartureDateTime,
+      OriginLocationCode,
+      DestinationLocationCode,
+      DepartureDateTime1,
+      OriginLocationCode1,
+      DestinationLocationCode1,
+      AirType,
+      ADT,
+      CHD,
+      INF
+    );
     if (req.body.ADT === undefined || 0) {
       console.log(`hello`);
       ADT = 1;
     }
-    if (req.body.CHD === undefined || 0) {
+    if (req.body.CHD === undefined || 0 || req.body.CHD === null) {
       CHD = 0;
     }
     if (req.body.CabinType === undefined) {
@@ -391,6 +402,19 @@ exports.mystiflyApiSearch = async (req, res) => {
     if (req.body.MaxStopsQuantity === undefined) {
       MaxStopsQuantity = "Direct";
     }
+
+    console.log(
+      DepartureDateTime,
+      OriginLocationCode,
+      DestinationLocationCode,
+      DepartureDateTime1,
+      OriginLocationCode1,
+      DestinationLocationCode1,
+      AirType,
+      ADT,
+      CHD,
+      INF
+    );
     response = "";
     if (AirType === "OneWay" && CHD === 0) {
       console.log(AirType);
@@ -472,10 +496,15 @@ exports.mystiflyApiSearch = async (req, res) => {
     }
     console.log(await response.Data);
     data = await response;
+    console.log(data);
     if (!data) {
       throw new Error("no data ");
     }
 
+    console.log(data);
+    if (data.data.Success === false) {
+      throw new Error(`Message:${data.data.Message}`);
+    }
     pricedItineraries = data.data.Data.PricedItineraries;
     flightSegmentList = data.data.Data.FlightSegmentList;
     FlightFaresList = data.data.Data.FlightFaresList;
@@ -491,11 +520,7 @@ exports.mystiflyApiSearch = async (req, res) => {
 
       //  this work when airtype is OneWay
       if (itinerary.OriginDestinations[1] === undefined) {
-        console.log(`hello`);
         flightSegment = flightSegmentList.find((segment) => {
-          console.log(`------------------------------`);
-          console.log(segment);
-          console.log(segment.SegmentRef === segmentRef);
           return segment.SegmentRef === segmentRef;
         });
       }
