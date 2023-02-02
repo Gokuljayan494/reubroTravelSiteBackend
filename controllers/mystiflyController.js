@@ -373,6 +373,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       CHD,
       INF,
     } = req.body;
+    console.log();
 
     if (req.body.ADT === undefined || 0) {
       console.log(`hello`);
@@ -469,8 +470,8 @@ exports.mystiflyApiSearch = async (req, res) => {
         MaxStopsQuantity
       );
     }
-    console.log(response);
-    data = await response1;
+    console.log(await response.Data);
+    data = await response;
     if (!data) {
       throw new Error("no data ");
     }
