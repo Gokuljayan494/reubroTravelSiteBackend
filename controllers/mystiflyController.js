@@ -164,6 +164,19 @@ const oneWay1 = async function (
 ) {
   try {
     console.log(`-----------------`);
+
+    console.log(
+      DepartureDateTime,
+      OriginLocationCode,
+      DestinationLocationCode,
+      AirType,
+      ADT,
+      CHD,
+      INF,
+      CabinType,
+      CabinPreference,
+      MaxStopsQuantity
+    );
     const response = await axios({
       method: "post",
       url: "https://restapidemo.myfarebox.com/api/v2/Search/Flight",
@@ -198,10 +211,6 @@ const oneWay1 = async function (
             Code: "ADT",
             Quantity: ADT,
           },
-          {
-            Code: "CHD",
-            Quantity: CHD,
-          },
         ],
 
         RequestOptions: "Fifty",
@@ -210,6 +219,8 @@ const oneWay1 = async function (
         ConversationId: "string",
       },
     });
+    console.log(response);
+    console.log(`hey`);
     if (!response) {
       throw new Error(await response.data);
     }
@@ -416,6 +427,7 @@ exports.mystiflyApiSearch = async (req, res) => {
       INF
     );
     response = "";
+    console.log(CHD);
     if (AirType === "OneWay" && CHD === 0) {
       console.log(AirType);
 
@@ -430,8 +442,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    }
-    if (AirType === "return" && CHD === 0) {
+    } else if (AirType === "return" && CHD === 0) {
       response = returnTwoWay(
         DepartureDateTime,
         OriginLocationCode,
@@ -446,11 +457,10 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    }
-    if (AirType === "OneWay" && CHD > 0) {
+    } else if (AirType === "OneWay" && CHD > 0) {
       console.log(AirType);
 
-      response1 = oneWay1(
+      response = oneWay1(
         DepartureDateTime,
         OriginLocationCode,
         DestinationLocationCode,
@@ -479,8 +489,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         CabinPreference,
         MaxStopsQuantity
       );
-    }
-    if (AirType === "Round") {
+    } else if (AirType === "Round") {
       response = roundFlight(
         DepartureDateTime,
         OriginLocationCode,
@@ -494,6 +503,7 @@ exports.mystiflyApiSearch = async (req, res) => {
         MaxStopsQuantity
       );
     }
+    console.log(`--------`);
     console.log(await response.Data);
     data = await response;
     console.log(data);
@@ -592,10 +602,11 @@ exports.mystiflyApiSearch = async (req, res) => {
       }
     });
 
-    // data = data.data;
+    data = data.data;
 
     res.status(200).json({
       flights,
+      data,
     });
   } catch (err) {
     res.status(400).json({
@@ -662,6 +673,156 @@ exports.revalidateFlights = async (req, res) => {
 
 exports.bookFlight = async (req, res) => {
   try {
+    const totalNumbers = req.params.number;
+    const airTravelers = [];
+    CountryCode = req.body.CountryCode;
+    AirTravelers = req.body.TravelerInfo.AirTravelers;
+    FareSourceCode = req.body.FareSourceCode;
+
+    for (let i = 0; i < totalNumbers; i++) {
+      // console.log(AirTravelers);
+      PassengerType = AirTravelers[i].PassengerType;
+      Gender = AirTravelers[i].Gender;
+      PassengerTitle = AirTravelers[i].PassengerName.PassengerTitle;
+      PassengerFirstName = AirTravelers[i].PassengerName.PassengerFirstName;
+      PassengerLastName = AirTravelers[i].PassengerName.PassengerLastName;
+      DateOfBirth = AirTravelers[i].DateOfBirth;
+      PassportNumber = AirTravelers[i].Passport.PassportNumber;
+      ExpiryDate = AirTravelers[i].Passport.ExpiryDate;
+      Country = AirTravelers[i].Passport.Country;
+      PassengerNationality = AirTravelers[i].PassengerNationality;
+
+      airTravelers.push({
+        PassengerType,
+        Gender,
+        PassengerName: {
+          PassengerTitle,
+          PassengerFirstName,
+          PassengerLastName,
+        },
+        DateOfBirth,
+        Passport: {
+          PassportNumber,
+          ExpiryDate,
+          Country,
+        },
+        PassengerNationality,
+      });
+    }
+    console.log(airTravelers);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v1/Book/Flight",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        FareSourceCode: FareSourceCode,
+        TravelerInfo: {
+          AirTravelers: airTravelers,
+          CountryCode: CountryCode,
+          AreaCode: "987",
+          PhoneNumber: "8921904619",
+          Email: "gokul@gmail.com",
+          PostCode: "688534",
+        },
+        Target: "Test",
+        ConversationId: "mystifly",
+        LccHoldBooking: true,
+      },
+    });
+    console.log(`-------`);
+    if (!response) {
+      console.log(`hey `);
+      throw new Error(response);
+    }
+
+    console.log(await response);
+    console.log(await response.data.Data.PricedItineraries[0]);
+    if (await response.data.Data.Errors) {
+      throw new Error(await response.data.Data.Errors[0]);
+    }
+    res.status(200).json({ status: "sucess" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.OrderTicket = async (req, res) => {
+  try {
+    UniqueID = req.body.UniqueID;
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v1/OrderTicket",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        UniqueID: UniqueID,
+        Target: "Test",
+      },
+    });
+    console.log(await response.data.Data.Errors[0]);
+    if (!((await response.data.Success) === true)) {
+      throw new Error(await response.data.Data.Errors[0].Message);
+    }
+
+    response = await response;
+    res.status(200).json({ status: "sucess", response });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.BookingNotes = async (req, res) => {
+  try {
+    notes = [];
+    UniqueID = req.body.UniqueID;
+    notes.push(req.body.notes);
+    const response = await axios({
+      method: "post",
+      url: "https://restapidemo.myfarebox.com/api/v1/BookingNotes",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        UniqueID: UniqueID,
+        Notes: notes[0],
+        Target: "Test",
+        ConversationId: "gokuljayan",
+      },
+    });
+    console.log(await response.data.Data.Errors[0]);
+    if (!((await response.data.Success) === true)) {
+      throw new Error(await response.data.Data.Errors[0].Message);
+    }
+    res.status(200).json({ status: "sucess" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.mref = async (req, res) => {
+  try {
+    FareSourceCode = req.body.fareSourceCode;
+    console.log(FareSourceCode);
+    const response = await axios({
+      method: "get",
+      url: `https://restapidemo.myfarebox.com/api/RetrieveMFRefThroughFSC/${FareSourceCode}`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+    });
+    data = await response;
+    console.log(data.data.Data);
+    data = data.data.Data;
+    if (data.MFRefResult.Success === false) {
+      throw new Error(`${data.MFRefResult.MFRef}`);
+    }
     res.status(200).json({ status: "sucess", data });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });

@@ -13,4 +13,9 @@ router.post(
   mystiflyController.revalidateFlights
 );
 
+router.route("/bookFlight/:number").post(mystiflyController.bookFlight);
+router.route("/orderFlight").post(mystiflyController.OrderTicket);
+router.route("/bookingNotes").get(mystiflyController.BookingNotes);
+router.route("/retriveMFRef").get(mystiflyController.mref);
+
 module.exports = router;
