@@ -606,22 +606,28 @@ exports.mystiflyApiSearch = async (req, res) => {
 };
 
 exports.flightFaresRules = async (req, res) => {
+  // const { FareSourceCode } = req.body;
+
   try {
-    // const { FareSourceCode } = req.body;
     FareSourceCode = req.params.fareSourceCode;
-    response = await axios({
+    console.log(FareSourceCode);
+    const response = await axios({
       method: "post",
-      url: "https://restapidemo.myfarebox.com/api/v1/Revalidate/Flight",
+      url: "https://restapidemo.myfarebox.com/api/v1/FlightFareRules",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
       },
       data: {
-        FareSourceCode,
+        FareSourceCode: FareSourceCode,
         Target: "Test",
         ConversationId: "tygsyqYbhU678",
       },
     });
+    if (response.data.Data === false) {
+      throw new Error(response.data.Message);
+    }
+    console.log(await response);
     data = response.data;
     res.status(200).json({ data });
   } catch (err) {
