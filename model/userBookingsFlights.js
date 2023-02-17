@@ -2,34 +2,15 @@ const mongooose = require("mongoose");
 const User = require("./userModel");
 const bookingFlightSchema = new mongooose.Schema(
   {
-    // user: {
-    //   type: mongooose.Schema.Types.ObjectId,
-    //   ref: User,
-    //   required: true,
-    // },
     user: {
       type: mongooose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    specialRequirements: {
-      type: String,
-    },
-    nameOnCard: {
-      type: String,
-      required: true,
-    },
-    cardNumber: {
-      type: String,
-      required: true,
-    },
-    expirationDate: {
-      type: String,
-    },
     flightDetails: {
-      type: Array,
-      // required,
+      type: Buffer,
+      required: true,
     },
     active: {
       type: Boolean,
@@ -44,13 +25,13 @@ const bookingFlightSchema = new mongooose.Schema(
   { timestamps: true }
 );
 // bookingFlightSchema.plugin(moongoosePagin);
-bookingFlightSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "user",
-    select: "name photo",
-  });
-  next();
-});
+// bookingFlightSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "user",
+//     select: "name photo",
+//   });
+//   next();
+// });
 const BookingFlightModel = mongooose.model(
   "BookingFlight",
   bookingFlightSchema

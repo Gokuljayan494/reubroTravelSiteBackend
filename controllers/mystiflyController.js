@@ -513,7 +513,10 @@ exports.mystiflyApiSearch = async (req, res) => {
 
     console.log(data);
     if (data.data.Success === false) {
-      throw new Error(`Message:${data.data.Message}`);
+      console.log(data.data.Data.Errors[0]);
+      throw new Error(
+        `Message:${data.data.Message},${data.data.Data.Errors[0]}`
+      );
     }
     pricedItineraries = data.data.Data.PricedItineraries;
     flightSegmentList = data.data.Data.FlightSegmentList;
@@ -679,6 +682,7 @@ exports.bookFlight = async (req, res) => {
     AirTravelers = req.body.TravelerInfo.AirTravelers;
     FareSourceCode = req.body.FareSourceCode;
 
+    console.log(req.body);
     for (let i = 0; i < totalNumbers; i++) {
       // console.log(AirTravelers);
       PassengerType = AirTravelers[i].PassengerType;
@@ -727,23 +731,25 @@ exports.bookFlight = async (req, res) => {
           Email: "gokul@gmail.com",
           PostCode: "688534",
         },
-        Target: "Test",
+        Target: "Production",
         ConversationId: "mystifly",
         LccHoldBooking: true,
       },
     });
     console.log(`-------`);
-    if (!response) {
+    if (response.data.Success === false) {
       console.log(`hey `);
-      throw new Error(response);
+      console.log(response.data.Data.Errors[0]);
+      throw new Error(response.data.Data.Errors[0].Message);
     }
 
     console.log(await response);
-    console.log(await response.data.Data.PricedItineraries[0]);
-    if (await response.data.Data.Errors) {
-      throw new Error(await response.data.Data.Errors[0]);
-    }
-    res.status(200).json({ status: "sucess" });
+    data = await response;
+    data = data.data;
+    console.log(`-----------------`);
+    // console.log(await response.data.Data.PricedItineraries[0]);
+
+    res.status(200).json({ status: "sucess", data });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
@@ -822,6 +828,32 @@ exports.mref = async (req, res) => {
     data = data.data.Data;
     if (data.MFRefResult.Success === false) {
       throw new Error(`${data.MFRefResult.MFRef}`);
+    }
+    res.status(200).json({ status: "sucess", data });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.cancelBooking = async (req, res) => {
+  try {
+    UniqueID = req.body.UniqueID;
+    const response = await axios({
+      method: "post",
+      url: `https://restapidemo.myfarebox.com​/api​/v1​/Booking​/Cancel`,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MYSTIFLY_TOKEN} `,
+      },
+      data: {
+        UniqueID: UniqueID,
+        Target: "Test",
+        ConversationId: "TravelSite",
+      },
+    });
+    data = await response;
+    if (data.data.Success === false) {
+      throw new Error(data.data.Message);
     }
     res.status(200).json({ status: "sucess", data });
   } catch (err) {

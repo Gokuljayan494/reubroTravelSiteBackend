@@ -1,6 +1,8 @@
 const AgentModel = require("../model/agentModel");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const agentBookingModel = require("../model/agentsBooking");
+const mongoose = require("mongoose");
 let jwtToken = async (id) => {
   token = jwt.sign({ id }, process.env.jwtSecretKeyAgent, {
     expiresIn: `1d`,
@@ -10,7 +12,8 @@ let jwtToken = async (id) => {
 
 exports.registerAgent = async (req, res) => {
   try {
-    const { email, password, companyName, country, state, city } = req.body;
+    const { email, password, companyName, country, state, city, mobile } =
+      req.body;
 
     const agent = new AgentModel({
       email,
@@ -19,6 +22,7 @@ exports.registerAgent = async (req, res) => {
       country,
       state,
       city,
+      mobile,
     });
 
     await agent.save({ validateBeforeSave: false });
@@ -115,8 +119,12 @@ exports.uploadVideos = upload.any("image");
 
 exports.CompleteRegistration = async (req, res) => {
   try {
-    const { ownerName, dob, idProof, tan, licenceNumber } = req.body;
+    const { ownerName, dob, idProof, tan, licenceNumber, mobile } = req.body;
+    if ((ownerName, dob, idProof, tan, licenceNumber, mobile)) {
+      throw new Error("please enter the fields");
+    }
     const image = req.video;
+
     console.log(ownerName, dob, idProof, tan, licenceNumber);
 
     agent = await AgentModel.findByIdAndUpdate(
@@ -128,14 +136,166 @@ exports.CompleteRegistration = async (req, res) => {
           "kyc.idProof": idProof,
           "kyc.tan": tan,
           "kyc.licenceNumber": licenceNumber,
-          "kyc.ownerName": ownerName,
           image,
+          mobile,
+        },
+      }
+    );
+    agent = await AgentModel.findByIdAndUpdate(
+      { _id: req.user },
+      {
+        $set: {
+          "kyc.ownerName": ownerName,
+          "kyc.dob": dob,
+          "kyc.idProof": idProof,
+          "kyc.tan": tan,
+          "kyc.licenceNumber": licenceNumber,
+          image,
+          mobile,
         },
       }
     );
     console.log(agent);
     // agent = await agent.save({ validateBeforeSave: false });
     // console.log(agent);
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.agentProfile = async (req, res) => {
+  try {
+    id = req.user;
+    agent = await AgentModel.findById({ _id: id });
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.agentBookTicket = async (req, res) => {
+  try {
+    details = req.body.details;
+    agent = req.user;
+    const data = Buffer.from(JSON.stringify(details));
+
+    agentBooking = await agentBookingModel.create({ agent, details: data });
+    res.status(200).json({ status: "sucess", agentBooking });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.editAgent = async (req, res) => {
+  try {
+    id = req.user;
+    const { email, licenceNumber, tan, idProof, ownerName, dob } = req.body;
+    console.log(req.video);
+    image = req.video;
+    console.log(image);
+    agent = await AgentModel.findByIdAndUpdate(
+      { _id: req.user },
+      {
+        $set: {
+          "kyc.ownerName": ownerName,
+          "kyc.dob": dob,
+          "kyc.idProof": idProof,
+          "kyc.tan": tan,
+          "kyc.licenceNumber": licenceNumber,
+          "kyc.ownerName": ownerName,
+          image,
+          email,
+        },
+      }
+    );
+
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.checkCreditBalance = async (req, res) => {
+  try {
+    id = req.user;
+    console.log(id);
+
+    agent = await AgentModel.findById({ _id: id });
+    console.log(agent);
+
+    const amountNeeded = 100;
+    if (agent.balance < amountNeeded) {
+      throw new Error(
+        "please contact travel site and add amount your credit balance is low"
+      );
+    }
+
+    res.status(200).json({ status: "sucess", message: "Book tickeks" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.agentsBookings = async (req, res) => {
+  try {
+    id = mongoose.Types.ObjectId(req.user);
+    bookings = await agentBookingModel.aggregate([
+      {
+        $match: { agent: id },
+      },
+      {
+        $lookup: {
+          from: "agents",
+
+          localField: "agent",
+
+          foreignField: "_id",
+          as: "agent_detailss",
+        },
+      },
+      {
+        $unwind: "$agent_detailss",
+      },
+    ]);
+
+    bookings = bookings.map((el) => {
+      return JSON.parse(el.details);
+    });
+    console.log(bookings);
+    data = JSON.stringify(bookings);
+    res.status(200).json({ status: "sucess", bookings });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    id = req.user;
+    oldPassword = req.body.oldPassword;
+    newPassword = req.body.newPassword;
+    passwordConfirm = req.body.confirmPassword;
+    agent = await AgentModel.findById({ _id: id }).select("+password");
+    // take password
+    agentPassword = agent.password;
+
+    // validate old password
+
+    if (!(await agent.checkPassword(agentPassword, oldPassword))) {
+      throw new Error("wrong password");
+    }
+    agent.password = newPassword;
+    agent = await agent.save({ validateBeforeSave: false });
+
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.viewVideo = async (req, res) => {
+  try {
     res.status(200).json({ status: "sucess", agent });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });

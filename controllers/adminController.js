@@ -6,12 +6,13 @@ const multer = require("multer");
 const VideoModel = require("../model/videoUploadModel");
 const formidable = require("formidable");
 const fs = require("fs");
-const FlightBookingModel = require("../model/bookingsFlights");
-const jwt = require("jsonwebtoken");
 const { getVideoDuration } = require("get-video-duration");
-const BookingFlightModel = require("../model/bookingsFlights");
-const { bookingsFlight } = require("./userController");
+const getALLUserFlightBookings = require("../model/userBookingsFlights");
+
+const agentBookingModel = require("../model/agentsBooking");
 const agentModel = require("../model/agentModel");
+const jwt = require("jsonwebtoken");
+
 //////////////////////////////////////////
 user1 = [];
 
@@ -57,8 +58,24 @@ exports.login = async (req, res) => {
 };
 exports.getAllUsers = async (req, res) => {
   try {
-    user = await userModel.find({ active: true });
-    console.log(user);
+    query = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete query[el]);
+
+    // 1B) Advanced filtering
+
+    let queryStr = JSON.stringify(query);
+
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    query = userModel.find(JSON.parse(queryStr));
+    // sort
+
+    if (req.query.sort) {
+      sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    }
+    user = await query.find({ active: true });
     res
       .status(200)
       .json({ status: "sucess", results: user.length, data: { user } });
@@ -148,9 +165,9 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-exports.getALLFlightBookings = async (req, res) => {
+exports.getALLUserFlightBookings = async (req, res) => {
   try {
-    flightBookings = await FlightBookingModel.find({ active: true });
+    flightBookings = await getALLUserFlightBookings.find({ active: true });
 
     res.status(200).json({ status: "sucess", flightBookings });
   } catch (err) {
@@ -210,14 +227,16 @@ exports.viewVideos = async (req, res) => {
 exports.dashboard = async (req, res) => {
   try {
     user = await userModel.find({ active: true });
-    bookings = await BookingFlightModel.find({ active: true });
-    if (!bookings) {
-      throw new Error("no bookings found");
+    agent = await agentModel.find();
+    console.log(agent);
+    console.log(user);
+    if (!agent || !user) {
+      throw new Error("not found");
     }
     res.status(200).json({
       status: "sucess",
       user: user.length,
-      bookings: bookings.length,
+      agent: agent.length,
     });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
@@ -248,11 +267,11 @@ exports.deleteBookings = async (req, res) => {
   }
 };
 
-exports.getBookingDetail = async (req, res) => {
+exports.getuserBookingDetail = async (req, res) => {
   try {
     id = req.params.userId;
 
-    booking = await BookingFlightModel.findById(id);
+    booking = await getALLUserFlightBookings.findById(id);
 
     res.status(200).json({ status: "sucess", booking });
   } catch (err) {
@@ -275,11 +294,20 @@ exports.deleteVideos = async (req, res) => {
   }
 };
 
+exports.registeredAgents = async (req, res) => {
+  try {
+    agent = await agentModel.find();
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
 exports.activateAgents = async (req, res) => {
   try {
     id = req.params.id;
     console.log(id);
-    admin = await agentModel.findById(id);
+    // admin = await agentModel.findOne({ _id: id });
+    admin = await agentModel.findOne({ _id: id });
     console.log(admin);
     if (admin.subscribe === false) {
       admin.subscribe = true;
@@ -293,7 +321,60 @@ exports.activateAgents = async (req, res) => {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
 };
+exports.getActivatedAgents = async (req, res) => {
+  try {
+    query = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete query[el]);
 
+    // 1B) Advanced filtering
+
+    let queryStr = JSON.stringify(query);
+
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    query = agentModel.find(JSON.parse(queryStr));
+    // sort
+
+    if (req.query.sort) {
+      sortBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortBy);
+    }
+    agent = await query.find({ subscribe: true });
+
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.viewAgent = async (req, res) => {
+  try {
+    id = req.params.id;
+
+    agent = await agentModel.findById(id);
+
+    res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+exports.deleteAgent = async (req, res) => {
+  try {
+    id = req.params.id;
+
+    agent = await agentModel.findByIdAndUpdate(
+      { _id: id },
+      { activate: false }
+    );
+    if (!agent) {
+      throw new Error("agent not deleted");
+    }
+    res.status(200).json({ status: "sucess", message: "agent deleted" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
 exports.addAgentCreditBalance = async (req, res) => {
   try {
     id = req.params.id;
@@ -305,6 +386,57 @@ exports.addAgentCreditBalance = async (req, res) => {
     );
 
     res.status(200).json({ status: "sucess", agent });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.getAgentBookings = async (req, res) => {
+  try {
+    await agentBookingModel.find({ active: true });
+    res.status(200).json({ status: "sucess", message: "video deleted" });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.editProfile = async (req, res) => {
+  try {
+    id = req.user;
+    const { name, email } = req.body;
+    // admin can edit name and email
+    console.log(id);
+    data = await AdminModel.findByIdAndUpdate({ _id: id }, { name, email });
+
+    data = await AdminModel.findByIdAndUpdate({ _id: id }, { name, email });
+    res.status(200).json({ status: "sucess", data });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  // need old password
+  try {
+    id = req.user;
+    oldPassword = req.body.oldPassword;
+    newPassword = req.body.newPassword;
+    passwordConfirm = req.body.confirmPassword;
+    console.log(req.body);
+    admin = await AdminModel.findById({ _id: id }).select("+password");
+    console.log(admin);
+    // take password
+    adminPassword = admin.password;
+
+    // validate old password
+
+    if (!(await admin.checkPassword(adminPassword, oldPassword))) {
+      throw new Error("invalid password");
+    }
+    admin.password = newPassword;
+    admin = await admin.save({ validateBeforeSave: false });
+
+    res.status(200).json({ status: "sucess", admin });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }

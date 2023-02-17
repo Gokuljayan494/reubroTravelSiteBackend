@@ -1,14 +1,16 @@
 // let AdsModel = require("../model/adsModel");
 const userModel = require("../model/userModel");
 const multer = require("multer");
-const boookingFlightModel = require("../model/bookingsFlights");
+const boookingFlightModel = require("../model/userBookingsFlights");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const sgMail = require("@sendgrid/mail");
 const sendRegisterEmail = require("../utils/emailSendGrid");
 const sendEmail = require("../controllers/email");
-
+const BookingFlightModel = require("../model/userBookingsFlights");
+const mongoose = require("mongoose");
+const user = require("../model/userBookingsFlights");
 ////////////////////////////////////////////
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -36,6 +38,7 @@ exports.protect = async (req, res, next) => {
 };
 
 let jwtToken = async (id) => {
+  console.log(`hello`);
   token = jwt.sign({ id }, process.env.jwtSecretKeyUser, {
     expiresIn: `1d`,
   });
@@ -114,22 +117,26 @@ exports.uploadAds = async (req, res) => {
 
 exports.userLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    // let { email, password } = req.body;
+    email = req.body.email;
+    password = req.body.password;
     console.log(email, password);
     // console.log(await userModel.find());
-    user = await userModel.findOne({ email }).select("+password");
-
-    if (!user) {
+    // user = await userModel.findOne({ email }).select("+password");
+    user1s = await userModel.findOne({ email: email }).select("+password");
+    console.log(user1s);
+    if (!user1s) {
       throw "input the fields";
     }
-    if (!(await user.checkPassword(user.password, password))) {
+    if (!(await user1s.checkPassword(user1s.password, password))) {
       throw new Error("incorrect credentials");
     }
+    console.log(await jwtToken(user1s._id));
 
-    token = await jwtToken(user._id);
+    token = await jwtToken(user1s._id);
     console.log(token);
 
-    res.status(200).json({ status: "sucess", user, token });
+    res.status(200).json({ status: "sucess", user1s, token });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
@@ -161,39 +168,33 @@ exports.editUser = async (req, res) => {
 exports.myProfile = async (req, res) => {
   try {
     id = req.user;
-    user = await userModel.findById(id);
-    res.status(200).json({ status: "sucess", user });
+    user1 = await userModel.findById(id);
+    res.status(200).json({ status: "sucess", user1 });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
 };
 
-exports.bookingsFlight = async (req, res) => {
+exports.changePassword = async (req, res) => {
+  // need old password
   try {
-    user = req.user;
-    const {
-      specialRequirements,
-      nameOnCard,
-      cardNumber,
-      expirationDate,
-      flightDetails,
-    } = req.body;
-    bookingFlight = await boookingFlightModel.create({
-      user,
-      specialRequirements,
-      nameOnCard,
-      cardNumber,
-      expirationDate,
-      flightDetails,
-    });
-    res.status(200).json({ status: "sucess", bookingFlight });
-  } catch (err) {
-    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
-  }
-};
-exports.getFlightBookingDetails = async (req, res) => {
-  try {
-    res.status(200).json({ status: "sucess", bookingFlight });
+    id = req.user;
+    oldPassword = req.body.oldPassword;
+    newPassword = req.body.newPassword;
+    passwordConfirm = req.body.confirmPassword;
+    user1 = await userModel.findById({ _id: id }).select("+password");
+    // take password
+    userPassword = user1.password;
+
+    // validate old password
+
+    if (!(await user1.checkPassword(userPassword, oldPassword))) {
+      throw new Error("invalid password");
+    }
+    user1.password = newPassword;
+    user1 = await user1.save({ validateBeforeSave: false });
+
+    res.status(200).json({ status: "sucess", user1 });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });
   }
@@ -267,10 +268,52 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+exports.userBookFlight = async (req, res) => {
+  try {
+    user1 = req.user;
+    const { flightDetails } = req.body;
+
+    data = Buffer.from(JSON.stringify(flightDetails));
+    bookingFlight = await boookingFlightModel.create({
+      user: user1,
+      flightDetails: data,
+    });
+    res.status(200).json({ status: "sucess", bookingFlight });
+  } catch (err) {
+    res.status(400).json({ status: "fail", message: `Error:${err.message}` });
+  }
+};
+
 exports.userBookings = async (req, res) => {
   try {
-    id = req.user;
-    bookings = await boookingFlightModel.find({ user: id }).populate("user");
+    id = mongoose.Types.ObjectId(req.user);
+
+    bookings = await boookingFlightModel.aggregate([
+      {
+        $match: { user: id },
+      },
+      {
+        $lookup: {
+          from: "users",
+
+          localField: "user",
+
+          foreignField: "_id",
+          as: "user_detailss",
+        },
+      },
+      {
+        $unwind: "$user_detailss",
+      },
+    ]);
+
+    bookings = bookings.map((el) => {
+      // return el.details.toString();
+      return JSON.parse(el.flightDetails);
+    });
+    data = JSON.stringify(bookings);
+
+    console.log(bookings);
     res.status(200).json({ status: "sucess", bookings });
   } catch (err) {
     res.status(400).json({ status: "fail", message: `Error:${err.message}` });

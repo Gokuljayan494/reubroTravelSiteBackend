@@ -4,6 +4,10 @@ const validator = require("validator");
 
 let agentSchema = new mongoose.Schema(
   {
+    bookings: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "agentBooking",
+    },
     email: {
       type: String,
       required: [true, "Email required"],
@@ -48,7 +52,10 @@ let agentSchema = new mongoose.Schema(
       default: "0",
       required: true,
     },
-
+    mobile: {
+      type: Number,
+      required: [true, "Agent required a mobile Number"],
+    },
     kyc: {
       ownerName: { type: String, required: true },
       dob: { type: String, required: true },

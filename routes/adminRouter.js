@@ -16,15 +16,20 @@ router.delete(
 
 router
   .route("/userFlightBookingDetails/:userId")
-  .get(authController.protect, adminController.getBookingDetail);
+  .get(authController.protect, adminController.getuserBookingDetail);
+
 router
   .route("/deleteBookings/:id")
   .delete(authController.protect, adminController.deleteBookings);
+
 router.post("/forgotPassword", adminController.forgotPassword);
+
 router.patch("/resetPassword/:email", adminController.resetPassword);
+
 router
   .route("/flightBookingDetails")
-  .get(authController.protect, adminController.getALLFlightBookings);
+  .get(authController.protect, adminController.getALLUserFlightBookings);
+
 router.post(
   "/uploadVideo",
   authController.protect,
@@ -35,15 +40,39 @@ router.post(
 router
   .route("/getVideo")
   .get(authController.protect, adminController.viewVideos);
+
 router
   .route("/dashboard")
   .get(authController.protect, adminController.dashboard);
 
 router
+  .route("/totalRegisteredAgents")
+  .get(authController.protect, adminController.registeredAgents);
+
+router
   .route("/activateAgency/:id")
-  .patch(authController.protect, adminController.activateAgents);
+  .delete(authController.protect, adminController.activateAgents);
 
 router
   .route("/addAgentBalance/:id")
   .patch(authController.protect, adminController.addAgentCreditBalance);
+
+router
+  .route("/editAdmin")
+  .patch(authController.protect, adminController.editProfile);
+
+router
+  .route("/getActivatedAgents")
+  .get(authController.protect, adminController.getActivatedAgents);
+
+router
+  .route("/viewAgent/:id")
+  .get(authController.protect, adminController.viewAgent);
+
+router
+  .route("/deleteAgent/:id")
+  .delete(authController.protect, adminController.deleteAgent);
+router
+  .route("/changePassword")
+  .patch(authController.protect, adminController.changePassword);
 module.exports = router;

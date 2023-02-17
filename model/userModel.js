@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
-const Booking = require("./bookingsFlights");
+const Booking = require("./userBookingsFlights");
 const mongoosePaginate = require("mongoose-paginate-v2");
 const { default: isEmail } = require("validator/lib/isEmail");
+const BookingFlight = require("../model/userBookingsFlights");
 
 // const { softDeletePlugin } = require("soft-delete-plugin-mongoose");
 
@@ -11,7 +12,7 @@ let userSchema = new mongoose.Schema(
   {
     booking: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Booking",
+      ref: "BookingFlight",
     },
     name: {
       type: String,
